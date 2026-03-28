@@ -135,9 +135,7 @@ const CodingLab = () => {
   const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const consoleEndRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
-  const [isSharingScreen, setIsSharingScreen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [editorSettings, setEditorSettings] = useState({
@@ -269,14 +267,6 @@ const CodingLab = () => {
   };
 
   const handleRunCode = async () => {
-    if (!isSharingScreen) {
-      const isShared = await toggleScreenShare();
-      if (!isShared) {
-        addLog("Execution stopped: Screen sharing is required to run the code.");
-        return;
-      }
-    }
-
     setIsRunning(true);
     setActiveTab('console');
     setConsoleLogs([]);
@@ -356,37 +346,6 @@ const CodingLab = () => {
     setShowLanguageDropdown(false);
     setConsoleLogs([]);
     setTestResults([]);
-  };
-
-  const toggleScreenShare = async (): Promise<boolean> => {
-    if (isSharingScreen && videoRef.current) {
-      const tracks = (videoRef.current.srcObject as MediaStream)?.getTracks();
-      tracks?.forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-      setIsSharingScreen(false);
-      return false;
-    }
-
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({ 
-        video: true,
-        audio: false 
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setIsSharingScreen(true);
-      }
-      
-      // Handle the user clicking "Stop sharing" on the browser's native floating bar
-      stream.getVideoTracks()[0].onended = () => {
-        setIsSharingScreen(false);
-        if (videoRef.current) videoRef.current.srcObject = null;
-      };
-      return true;
-    } catch (err) {
-      console.error("Error sharing screen: ", err);
-      return false;
-    }
   };
 
   return (
@@ -820,37 +779,6 @@ const CodingLab = () => {
             </div>
           </div>
 
-          <div className="absolute bottom-12 right-12 z-40">
-            <div 
-              onClick={toggleScreenShare}
-              className={`w-52 aspect-video bg-[#1a1a1e]/80 backdrop-blur-xl rounded-2xl border-2 shadow-3xl overflow-hidden relative group hover:scale-105 transition-all cursor-pointer ${
-                isSharingScreen ? 'border-red-500/40' : 'border-brand-cyan/40'
-              }`}
-              title={isSharingScreen ? "Click to stop sharing" : "Click to share screen"}
-            >
-              <video 
-                ref={videoRef}
-                autoPlay 
-                playsInline 
-                muted 
-                className={`w-full h-full object-cover transition-opacity duration-300 ${isSharingScreen ? 'opacity-100' : 'opacity-0 hidden'}`}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent flex items-end p-5">
-                <div className="flex items-center gap-3">
-                  <div className={`w-2.5 h-2.5 rounded-full animate-pulse ${isSharingScreen ? 'bg-red-500' : 'bg-white/30'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${isSharingScreen ? 'text-red-400' : 'text-white/40'}`}>
-                    {isSharingScreen ? 'Live' : 'Share'}
-                  </span>
-                  <span className="text-[10px] font-medium text-white/40 ml-2">{formatTime(timeLeft)}</span>
-                </div>
-              </div>
-              {!isSharingScreen && (
-                <div className="absolute inset-0 flex items-center justify-center opacity-30 mt-[-10px]">
-                  <Video className="w-12 h-12" />
-                </div>
-              )}
-            </div>
-          </div>
          </div>
         </div>
         )}
