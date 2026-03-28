@@ -216,13 +216,22 @@ const groqMessages = [
       const data = await groqResponse.json();
       let textResponse = data.choices?.[0]?.message?.content || '{"passed": false, "feedback": "Evaluation failed to generate"}';
 
-    textResponse = textResponse.replace(/^```json\s*/i, '').replace(/```$/i, '').trim();
+    // Better JSON extraction from markdown or chatty AI responses
+    const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      textResponse = jsonMatch[0];
+    }
     
-    const result = JSON.parse(textResponse);
-    res.json(result);
+    try {
+      const result = JSON.parse(textResponse);
+      res.json(result);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError, '\nResponse Text:', textResponse, '\nRaw Data:', JSON.stringify(data));
+      throw parseError;
+    }
   } catch (error) {
-    console.error('Error evaluating code:', error);
-    res.status(500).json({ passed: false, feedback: "Error evaluating code. Please try again." });
+    console.error('Error evaluating code [FULL ERROR]:', error.message, error.stack);
+    res.status(500).json({ passed: false, feedback: `Error evaluating code: ${error.message}` });
   }
 });
 
