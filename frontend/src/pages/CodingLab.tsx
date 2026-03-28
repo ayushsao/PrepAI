@@ -28,7 +28,10 @@ import {
   List
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Editor as MonacoEditor } from '@monaco-editor/react';
+import { Editor as MonacoEditor, loader } from '@monaco-editor/react';
+
+// Use Cloudflare CDN instead of jsDelivr for Monaco Editor to fix online loading issues/blocks
+loader.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.46.0/min/vs' } });
 
 const TOPICS = [
   { id: 'arrays', name: 'Arrays & Hashing', count: 30, icon: LayoutDashboard, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
@@ -717,6 +720,12 @@ const CodingLab = () => {
                 cursorSmoothCaretAnimation: 'on',
                 formatOnPaste: true,
               }}
+              loading={
+                <div className="flex flex-col items-center justify-center h-full text-brand-cyan/50 gap-3">
+                  <Loader2 className="w-8 h-8 animate-spin" />
+                  <span className="text-sm font-medium tracking-widest uppercase">Connecting to Editor...</span>
+                </div>
+              }
             />
           </div>
 
