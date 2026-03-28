@@ -1,0 +1,47 @@
+[
+  {
+    "id": "user_1774638976050",
+    "name": "Test User",
+    "email": "testuser+1774658775@example.com",
+    "password": "$2b$12$pfjSjnhsXiMrlBLVP95Hqu5IEmo0oo2R6b6cekR4ZeoVBms9auBHa",
+    "role": "user",
+    "createdAt": "2026-03-27T19:16:16.050Z",
+    "avatar": null
+  },
+  {
+    "id": "user_1774639393560",
+    "name": "Ayush User2",
+    "email": "ayush2@example.com",
+    "password": "$2b$12$ohadlmHZa.gNX36xrpPSOev2XqV8HYiZuAWFXe4e6LkqJWyXNvFpu",
+    "role": "user",
+    "createdAt": "2026-03-27T19:23:13.561Z",
+    "avatar": null
+  },
+  {
+    "id": "user_1774639447804",
+    "name": "Ayush kumar sao",
+    "email": "ayushsao45@gmail.com",
+    "password": "$2b$12$D4mS1XRZiSc3tyJc0bFy.Oc7JvgNOW2.tuHE/m5meTL3S3OGJ7W1y",
+    "role": "user",
+    "createdAt": "2026-03-27T19:24:07.804Z",
+    "avatar": null
+  },
+  {
+    "id": "user_1774639539982",
+    "name": "Ayush kumar sao",
+    "email": "ayushsao99@gmail.com",
+    "password": "$2b$12$TlAvhPlS.8AdFBhEsD9LBumGEetd4CBo/b8DaGHfG4Q573WgrXUUC",
+    "role": "user",
+    "createdAt": "2026-03-27T19:25:39.982Z",
+    "avatar": null
+  },
+  {
+    "id": "user_1774670761654",
+    "name": "Ayush kumar sao",
+    "email": "ayushsao79@gmail.com",
+    "password": "$2b$12$HDfIBylryuWmHJQ5akuwVOJsl6E62wMfIfm09VHQ5/.2KFCSCFVqe",
+    "role": "user",
+    "createdAt": "2026-03-28T04:06:01.655Z",
+    "avatar": null
+  }
+]
