@@ -42,7 +42,57 @@ const TOPICS = [
   { id: 'graphs', name: 'Graphs', count: 35, icon: Terminal, color: 'text-pink-400', bg: 'bg-pink-400/10', border: 'border-pink-400/20' }
 ];
 
+const ARRAYS_QUESTIONS = [
+  "Add Two Polynomials Represented as Linked Lists",
+  "Armstrong Number",
+  "Majority Element-I",
+  "Two Sum",
+  "Maximum Consecutive Ones",
+  "Move Zeros to End",
+  "Find row with maximum 1's",
+  "Floor and Ceil in a BST",
+  "Search in BST",
+  "Diameter of Binary Tree",
+  "Inorder Traversal",
+  "Level Order Traversal",
+  "Postorder Traversal",
+  "Pre, Post, Inorder in one traversal",
+  "Preorder Traversal",
+  "Check if a Number is Power of 2 or Not",
+  "Closest Binary Search Tree Value",
+  "Count the Number of Set Bits",
+  "Design An Expression Tree With Evaluate Function",
+  "Diet Plan Performance",
+  "Assign Cookies",
+  "Jump Game - I",
+  "Lemonade Change",
+  "High Five",
+  "Index Pairs of a String",
+  "Largest Unique Number",
+  "Meeting Rooms",
+  "Missing Ranges",
+  "Number of Days in a Month",
+  "Palindrome Permutation",
+  "Perform String Shifts",
+  "Read N Characters Given Read4",
+  "Remove Vowels from a String"
+];
+
 const getMockQuestions = (topicName: string, solvedSet: Set<string> = new Set()) => {
+  if (topicName === 'Arrays & Hashing') {
+    return ARRAYS_QUESTIONS.map((title, i) => {
+      const qId = `${topicName}-q${i + 1}`;
+      return {
+        id: qId,
+        originalId: `q${i + 1}`,
+        title: title,
+        difficulty: i % 4 === 0 ? 'Hard' : i % 2 === 0 ? 'Medium' : 'Easy',
+        status: solvedSet.has(qId) ? 'solved' : (i === 3 ? 'attempted' : 'todo'),
+        acceptance: `${Math.floor(Math.random() * 40 + 40)}%`,
+      };
+    });
+  }
+
   return Array.from({ length: 30 }, (_, i) => {
     const qId = `${topicName}-q${i + 1}`;
     let isSolvedByDefault = i === 0;
@@ -61,6 +111,80 @@ const getMockQuestions = (topicName: string, solvedSet: Set<string> = new Set())
   });
 };
 
+const QUESTION_DETAILS: Record<string, { desc: string, input: string, output: string, argsPython: string, argsJava: string, argsCpp: string, retPy: string, retJava: string, retCpp: string }> = {
+  'Add Two Polynomials Represented as Linked Lists': { desc: 'Given two polynomials represented as linked lists, return the sum of the polynomials.', input: 'poly1 = [[1,1]], poly2 = [[1,0]]', output: '[[1,1],[1,0]]', argsPython: 'poly1: \'PolyNode\', poly2: \'PolyNode\'', retPy: '\'PolyNode\'', argsJava: 'PolyNode poly1, PolyNode poly2', retJava: 'PolyNode', argsCpp: 'PolyNode* poly1, PolyNode* poly2', retCpp: 'PolyNode*' },
+  'Armstrong Number': { desc: 'Given an integer n, return true if and only if it is an Armstrong number.', input: 'n = 153', output: 'true', argsPython: 'n: int', retPy: 'bool', argsJava: 'int n', retJava: 'boolean', argsCpp: 'int n', retCpp: 'bool' },
+  'Majority Element-I': { desc: 'Given an array nums of size n, return the majority element.', input: 'nums = [3,2,3]', output: '3', argsPython: 'nums: List[int]', retPy: 'int', argsJava: 'int[] nums', retJava: 'int', argsCpp: 'vector<int>& nums', retCpp: 'int' },
+  'Two Sum': { desc: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.', input: 'nums = [2,7,11,15], target = 9', output: '[0,1]', argsPython: 'nums: List[int], target: int', retPy: 'List[int]', argsJava: 'int[] nums, int target', retJava: 'int[]', argsCpp: 'vector<int>& nums, int target', retCpp: 'vector<int>' },
+  'Maximum Consecutive Ones': { desc: 'Given a binary array nums, return the maximum number of consecutive 1\'s in the array.', input: 'nums = [1,1,0,1,1,1]', output: '3', argsPython: 'nums: List[int]', retPy: 'int', argsJava: 'int[] nums', retJava: 'int', argsCpp: 'vector<int>& nums', retCpp: 'int' },
+  'Move Zeros to End': { desc: 'Given an integer array nums, move all 0\'s to the end of it while maintaining the relative order of the non-zero elements.', input: 'nums = [0,1,0,3,12]', output: '[1,3,12,0,0]', argsPython: 'nums: List[int]', retPy: 'None', argsJava: 'int[] nums', retJava: 'void', argsCpp: 'vector<int>& nums', retCpp: 'void' },
+  'Find row with maximum 1\'s': { desc: 'Given a boolean 2D array matrix, find the row with the maximum number of 1\'s.', input: 'mat = [[0,1,1],[1,1,1],[0,0,0]]', output: '1', argsPython: 'mat: List[List[int]]', retPy: 'int', argsJava: 'int[][] mat', retJava: 'int', argsCpp: 'vector<vector<int>>& mat', retCpp: 'int' },
+  'Floor and Ceil in a BST': { desc: 'Given a BST and a key, find the floor and ceil values for that key.', input: 'root = [8,4,12,2,6,10,14], key = 5', output: '[4,6]', argsPython: 'root: Optional[TreeNode], key: int', retPy: 'List[int]', argsJava: 'TreeNode root, int key', retJava: 'int[]', argsCpp: 'TreeNode* root, int key', retCpp: 'vector<int>' },
+  'Search in BST': { desc: 'Find the node in the BST that the node\'s value equals val.', input: 'root = [4,2,7,1,3], val = 2', output: '[2,1,3]', argsPython: 'root: Optional[TreeNode], val: int', retPy: 'Optional[TreeNode]', argsJava: 'TreeNode root, int val', retJava: 'TreeNode', argsCpp: 'TreeNode* root, int val', retCpp: 'TreeNode*' },
+  'Diameter of Binary Tree': { desc: 'Given the root of a binary tree, return the length of the diameter of the tree.', input: 'root = [1,2,3,4,5]', output: '3', argsPython: 'root: Optional[TreeNode]', retPy: 'int', argsJava: 'TreeNode root', retJava: 'int', argsCpp: 'TreeNode* root', retCpp: 'int' },
+  'Inorder Traversal': { desc: 'Given the root of a binary tree, return the inorder traversal of its nodes\' values.', input: 'root = [1,null,2,3]', output: '[1,3,2]', argsPython: 'root: Optional[TreeNode]', retPy: 'List[int]', argsJava: 'TreeNode root', retJava: 'List<Integer>', argsCpp: 'TreeNode* root', retCpp: 'vector<int>' },
+  'Level Order Traversal': { desc: 'Given the root of a binary tree, return the level order traversal of its nodes\' values.', input: 'root = [3,9,20,null,null,15,7]', output: '[[3],[9,20],[15,7]]', argsPython: 'root: Optional[TreeNode]', retPy: 'List[List[int]]', argsJava: 'TreeNode root', retJava: 'List<List<Integer>>', argsCpp: 'TreeNode* root', retCpp: 'vector<vector<int>>' },
+  'Postorder Traversal': { desc: 'Given the root of a binary tree, return the postorder traversal of its nodes\' values.', input: 'root = [1,null,2,3]', output: '[3,2,1]', argsPython: 'root: Optional[TreeNode]', retPy: 'List[int]', argsJava: 'TreeNode root', retJava: 'List<Integer>', argsCpp: 'TreeNode* root', retCpp: 'vector<int>' },
+  'Pre, Post, Inorder in one traversal': { desc: 'Given a binary tree, return the pre, post, and inorder traversals in a single output structure.', input: 'root = [1,2,3]', output: '[[1,2,3], [2,1,3], [2,3,1]]', argsPython: 'root: Optional[TreeNode]', retPy: 'List[List[int]]', argsJava: 'TreeNode root', retJava: 'List<List<Integer>>', argsCpp: 'TreeNode* root', retCpp: 'vector<vector<int>>' },
+  'Preorder Traversal': { desc: 'Given the root of a binary tree, return the preorder traversal of its nodes\' values.', input: 'root = [1,null,2,3]', output: '[1,2,3]', argsPython: 'root: Optional[TreeNode]', retPy: 'List[int]', argsJava: 'TreeNode root', retJava: 'List<Integer>', argsCpp: 'TreeNode* root', retCpp: 'vector<int>' },
+  'Check if a Number is Power of 2 or Not': { desc: 'Given an integer n, return true if it is a power of two.', input: 'n = 16', output: 'true', argsPython: 'n: int', retPy: 'bool', argsJava: 'int n', retJava: 'boolean', argsCpp: 'int n', retCpp: 'bool' },
+  'Closest Binary Search Tree Value': { desc: 'Given the root of a BST and a target value, return the value in the BST that is closest to the target.', input: 'root = [4,2,5,1,3], target = 3.71', output: '4', argsPython: 'root: Optional[TreeNode], target: float', retPy: 'int', argsJava: 'TreeNode root, double target', retJava: 'int', argsCpp: 'TreeNode* root, double target', retCpp: 'int' },
+  'Count the Number of Set Bits': { desc: 'Write a function that takes an unsigned integer and returns the number of \'1\' bits it has.', input: 'n = 11', output: '3', argsPython: 'n: int', retPy: 'int', argsJava: 'int n', retJava: 'int', argsCpp: 'uint32_t n', retCpp: 'int' },
+  'Design An Expression Tree With Evaluate Function': { desc: 'Given the postfix tokens of an arithmetic expression, build and return the binary expression tree.', input: 'postfix = [\'3\',\'4\',\'+\',\'2\',\'*\',\'7\',\'/\']', output: '2', argsPython: 'postfix: List[str]', retPy: '\'Node\'', argsJava: 'String[] postfix', retJava: 'Node', argsCpp: 'vector<string>& postfix', retCpp: 'Node*' },
+  'Diet Plan Performance': { desc: 'Return the total points the dieter loses or gains.', input: 'calories = [1,2,3,4,5], k = 1, lower = 3, upper = 3', output: '0', argsPython: 'calories: List[int], k: int, lower: int, upper: int', retPy: 'int', argsJava: 'int[] calories, int k, int lower, int upper', retJava: 'int', argsCpp: 'vector<int>& calories, int k, int lower, int upper', retCpp: 'int' },
+  'Assign Cookies': { desc: 'Maximize the number of content children.', input: 'g = [1,2,3], s = [1,1]', output: '1', argsPython: 'g: List[int], s: List[int]', retPy: 'int', argsJava: 'int[] g, int[] s', retJava: 'int', argsCpp: 'vector<int>& g, vector<int>& s', retCpp: 'int' },
+  'Jump Game - I': { desc: 'Return true if you can reach the last index.', input: 'nums = [2,3,1,1,4]', output: 'true', argsPython: 'nums: List[int]', retPy: 'bool', argsJava: 'int[] nums', retJava: 'boolean', argsCpp: 'vector<int>& nums', retCpp: 'bool' },
+  'Lemonade Change': { desc: 'Return true if and only if you can provide every customer with the correct change.', input: 'bills = [5,5,5,10,20]', output: 'true', argsPython: 'bills: List[int]', retPy: 'bool', argsJava: 'int[] bills', retJava: 'boolean', argsCpp: 'vector<int>& bills', retCpp: 'bool' },
+  'High Five': { desc: 'Return the average score of each student\'s top five scores.', input: 'items = [[1,91],[1,92],[2,93],[2,97],[1,60],[2,77],[1,65],[1,87],[1,100],[2,100],[2,76]]', output: '[[1,87],[2,88]]', argsPython: 'items: List[List[int]]', retPy: 'List[List[int]]', argsJava: 'int[][] items', retJava: 'int[][]', argsCpp: 'vector<vector<int>>& items', retCpp: 'vector<vector<int>>' },
+  'Index Pairs of a String': { desc: 'Return all index pairs [i, j] so that the substring text[i...j] is in words.', input: 'text = \'thestoryofleetcodeandme\', words = [\'story\',\'fleet\',\'leetcode\']', output: '[[3,7],[9,13],[10,17]]', argsPython: 'text: str, words: List[str]', retPy: 'List[List[int]]', argsJava: 'String text, String[] words', retJava: 'int[][]', argsCpp: 'string text, vector<string>& words', retCpp: 'vector<vector<int>>' },
+  'Largest Unique Number': { desc: 'Return the largest integer that only occurs once. If no integer occurs once, return -1.', input: 'nums = [5,7,3,9,4,9,8,3,1]', output: '8', argsPython: 'nums: List[int]', retPy: 'int', argsJava: 'int[] nums', retJava: 'int', argsCpp: 'vector<int>& nums', retCpp: 'int' },
+  'Meeting Rooms': { desc: 'Determine if a person could attend all meetings.', input: 'intervals = [[0,30],[5,10],[15,20]]', output: 'false', argsPython: 'intervals: List[List[int]]', retPy: 'bool', argsJava: 'int[][] intervals', retJava: 'boolean', argsCpp: 'vector<vector<int>>& intervals', retCpp: 'bool' },
+  'Missing Ranges': { desc: 'Return the shortest sorted list of ranges that exactly covers all the missing numbers.', input: 'nums = [0,1,3,50,75], lower = 0, upper = 99', output: '[[2,2],[4,49],[51,74],[76,99]]', argsPython: 'nums: List[int], lower: int, upper: int', retPy: 'List[List[int]]', argsJava: 'int[] nums, int lower, int upper', retJava: 'List<List<Integer>>', argsCpp: 'vector<int>& nums, int lower, int upper', retCpp: 'vector<vector<int>>' },
+  'Number of Days in a Month': { desc: 'Given a year and a month, return the number of days in that month.', input: 'year = 1992, month = 7', output: '31', argsPython: 'year: int, month: int', retPy: 'int', argsJava: 'int year, int month', retJava: 'int', argsCpp: 'int year, int month', retCpp: 'int' },
+  'Palindrome Permutation': { desc: 'Return true if a permutation of the string could form a palindrome.', input: 's = \'code\'', output: 'false', argsPython: 's: str', retPy: 'bool', argsJava: 'String s', retJava: 'boolean', argsCpp: 'string s', retCpp: 'bool' },
+  'Perform String Shifts': { desc: 'Return the final string after all string shift operations.', input: 's = \'abc\', shift = [[0,1],[1,2]]', output: '\'cab\'', argsPython: 's: str, shift: List[List[int]]', retPy: 'str', argsJava: 'String s, int[][] shift', retJava: 'String', argsCpp: 'string s, vector<vector<int>>& shift', retCpp: 'string' },
+  'Read N Characters Given Read4': { desc: 'Implement a method to read n characters using read4.', input: 'file = \'abc\', n = 4', output: '3', argsPython: 'buf: List[str], n: int', retPy: 'int', argsJava: 'char[] buf, int n', retJava: 'int', argsCpp: 'char *buf, int n', retCpp: 'int' },
+  'Remove Vowels from a String': { desc: 'Remove the vowels \'a\', \'e\', \'i\', \'o\', and \'u\' from string, and return the new string.', input: 's = \'leetcodeisacommunityforcoders\'', output: '\'ltcdscmmntyfrcdrs\'', argsPython: 's: str', retPy: 'str', argsJava: 'String s', retJava: 'String', argsCpp: 'string s', retCpp: 'string' }
+};
+
+const getDefaultCode = (title: string, lang: string) => {
+  const details = QUESTION_DETAILS[title];
+  const methodName = title.split(' ').map((w, i) => i === 0 ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('').replace(/[^a-zA-Z0-9]/g, '');
+
+  if (details) {
+    if (lang === 'python') return `class Solution:\n    def ${methodName}(self, ${details.argsPython}) -> ${details.retPy}:\n        pass`;
+    if (lang === 'java') return `class Solution {\n    public ${details.retJava} ${methodName}(${details.argsJava}) {\n        \n    }\n}`;
+    if (lang === 'cpp') return `class Solution {\npublic:\n    ${details.retCpp} ${methodName}(${details.argsCpp}) {\n        \n    }\n};`;
+  }
+  
+  if (lang === 'python') return `class Solution:\n    def ${methodName}(self):\n        pass`;
+  if (lang === 'java') return `class Solution {\n    public void ${methodName}() {\n        \n    }\n}`;
+  if (lang === 'cpp') return `class Solution {\npublic:\n    void ${methodName}() {\n        \n    }\n};`;
+  
+  return '';
+};
+
+const getQuestionDescription = (title: string) => {
+  const details = QUESTION_DETAILS[title];
+  
+  if (details) {
+     return {
+       desc: <>{details.desc}</>,
+       examples: [
+         { input: details.input, output: details.output }
+       ]
+     };
+  }
+
+  // fallback...
+  return {
+    desc: <>Solve the problem: <strong className="text-white">{title}</strong>. Implement the optimal solution according to the required constraints.</>,
+    examples: [
+      { input: 'Example input here', output: 'Example output here' },
+      { input: 'Example input 2 here', output: 'Example output 2 here' }
+    ]
+  };
+};
 const LANGUAGE_CONFIGS = {
   python: {
     label: 'Python 3',
@@ -342,7 +466,7 @@ const CodingLab = () => {
 
   const handleLanguageChange = (langId: keyof typeof LANGUAGE_CONFIGS) => {
     setLanguage(langId);
-    setCode(LANGUAGE_CONFIGS[langId].starter);
+    setCode(getDefaultCode(selectedQuestion?.title || '', langId));
     setShowLanguageDropdown(false);
     setConsoleLogs([]);
     setTestResults([]);
@@ -485,6 +609,7 @@ const CodingLab = () => {
                         <button 
                           onClick={() => {
                             setSelectedQuestion(q);
+                            setCode(getDefaultCode(q.title, language));
                             setView('editor');
                           }}
                           className="px-4 py-1.5 bg-brand-cyan/10 text-brand-cyan text-xs font-bold rounded hover:bg-brand-cyan/20 transition-colors"
@@ -522,22 +647,23 @@ const CodingLab = () => {
                   <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest leading-none">{selectedTopic}</span>
                 </div>
                 <h1 className="text-3xl font-black mb-6 tracking-tight">{selectedQuestion?.title || 'Longest Palindromic Substring'}</h1>
+            
             <p className="text-sm text-white/60 leading-relaxed mb-8">
-              Given a string <code className="px-1.5 py-0.5 bg-white/10 rounded text-brand-cyan mx-0.5">s</code>, return the longest palindromic substring in <code className="px-1.5 py-0.5 bg-white/10 rounded text-brand-cyan mx-0.5">s</code>.
+              {getQuestionDescription(selectedQuestion?.title || '').desc}
             </p>
 
             <div className="space-y-6">
-              {[1, 2].map(num => (
-                <div key={num} className="space-y-3">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40">Example {num}</h4>
+              {getQuestionDescription(selectedQuestion?.title || '').examples.map((ex, idx) => (
+                <div key={idx} className="space-y-3">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40">Example {idx + 1}</h4>
                   <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl space-y-3 shadow-inner">
                     <div className="flex gap-2 text-xs">
                       <span className="text-white/30 font-bold lowercase">Input:</span>
-                      <span className="text-white/80 font-mono">s = {num === 1 ? '"babad"' : '"cbbd"'}</span>
+                      <span className="text-white/80 font-mono">{ex.input}</span>
                     </div>
                     <div className="flex gap-2 text-xs">
                       <span className="text-white/30 font-bold lowercase">Output:</span>
-                      <span className="text-white/80 font-mono">{num === 1 ? '"bab"' : '"bb"'}</span>
+                      <span className="text-white/80 font-mono">{ex.output}</span>
                     </div>
                   </div>
                 </div>
