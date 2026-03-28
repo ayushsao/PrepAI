@@ -381,7 +381,7 @@ const AboutPrepAI = () => (
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.1),transparent_70%)] pointer-events-none" />
             <div className="w-full h-full bg-[#0a0b0d] rounded-[2.8rem] overflow-hidden relative">
                <img
-                 src="https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                 src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1200&auto=format&fit=crop"
                  alt="Coding and Interviews"
                  className="w-full h-full object-cover opacity-50 contrast-125 mix-blend-luminosity hover:scale-105 transition-transform duration-700"
                />
