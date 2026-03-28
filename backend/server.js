@@ -147,17 +147,29 @@ The candidate is asking for a hint. Provide a VERY concise hint (1-2 sentences).
 Focus on the algorithm or identifying a logic error. Do NOT provide the full solution code.
 Hint should be encouraging and architectural.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: [{ role: 'user', parts: [{ text: "Provide a subtle hint to help me proceed without giving the answer away." }] }],
-      config: {
-        systemInstruction: systemInstruction,
+    const groqMessages = [
+      { role: 'system', content: systemInstruction },
+      { role: 'user', content: "Provide a subtle hint to help me proceed without giving the answer away." }
+    ];
+
+    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: groqMessages,
         temperature: 0.5,
-        maxOutputTokens: 150,
-      }
+        max_tokens: 150,
+      })
     });
 
-    res.json({ hint: response.text });
+    const data = await groqResponse.json();
+    const hintText = data.choices?.[0]?.message?.content || "Focus on the algorithmic logic and break the problem down into smaller steps.";
+
+    res.json({ hint: hintText });
   } catch (error) {
     console.error('Error generating coding hint:', error);
     res.status(500).json({ hint: "Focus on the palindromic expansion logic around each center character." });
@@ -183,16 +195,27 @@ Return a STRICT JSON object in the following format (NO MARKDOWN WRAPPERS, NO BA
   "feedback": "A concise paragraph explaining why it passed or failed."
 }`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: [{ role: 'user', parts: [{ text: "Evaluate my code and return JSON." }] }],
-      config: {
-        systemInstruction: systemInstruction,
-        temperature: 0.1,
-      }
-    });
-    
-    let textResponse = response.text.trim();
+const groqMessages = [
+        { role: 'system', content: systemInstruction },
+        { role: 'user', content: "Evaluate my code and return JSON." }
+      ];
+
+      const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: groqMessages,
+          temperature: 0.1,
+        })
+      });
+
+      const data = await groqResponse.json();
+      let textResponse = data.choices?.[0]?.message?.content || '{"passed": false, "feedback": "Evaluation failed to generate"}';
+
     textResponse = textResponse.replace(/^```json\s*/i, '').replace(/```$/i, '').trim();
     
     const result = JSON.parse(textResponse);
