@@ -36,7 +36,7 @@ const InterviewSession = () => {
   
   const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState<{role: string, content: string}[]>([
-    { role: 'assistant', content: 'Hello! I am your AI interviewer. To get started, could you please tell me a bit about yourself and your background?' }
+    { role: 'assistant', content: "Welcome. This is the technical deep-dive round. I'll be assessing your engineering rigor, problem-solving, and system-level thinking. Let's begin: walk me through the most technically complex project you've built, and highlight the exact engineering tradeoffs you made." }       
   ]);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   
@@ -184,9 +184,9 @@ const InterviewSession = () => {
     }
     
     utterance.lang = "en-US";
-    utterance.rate = 0.95;
+    utterance.rate = 1.0;
     utterance.volume = 1;
-    utterance.pitch = 1;
+    utterance.pitch = 0.85;
 
     utterance.onstart = () => console.log("Started speaking:", textToSpeak);
     
