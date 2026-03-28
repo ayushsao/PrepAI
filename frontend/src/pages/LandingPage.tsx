@@ -146,13 +146,12 @@ const SessionPreview = () => (
         
         <div className="grid lg:grid-cols-3">
           <div className="lg:col-span-2 p-1">
-            <div className="aspect-video relative rounded-2xl overflow-hidden bg-black">
-              <img 
-                src="https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                alt="Interviewer"
-                className="w-full h-full object-cover object-center opacity-80"
-
-              />
+            <div className="aspect-video relative rounded-2xl overflow-hidden bg-[#0c0e12] flex items-center justify-center">
+              {/* Abstract avatar replacement to prevent external CDN blocking on strict deploy environments */}
+              <div className="absolute inset-0 bg-gradient-to-br from-brand-cyan/20 to-transparent mix-blend-overlay" />
+              <div className="w-48 h-48 rounded-full bg-gradient-to-tr from-[#1a2332] to-[#253248] border-4 border-white/5 flex items-center justify-center shadow-2xl">
+                <User className="w-20 h-20 text-white/20" />
+              </div>
               <div className="absolute bottom-6 left-6 flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
                 <span className="text-xs font-bold tracking-widest uppercase">Recording</span>
