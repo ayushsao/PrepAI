@@ -30,8 +30,8 @@ import {
 import { Link } from 'react-router-dom';
 import { Editor as MonacoEditor, loader } from '@monaco-editor/react';
 
-// Use Cloudflare CDN instead of jsDelivr for Monaco Editor to fix online loading issues/blocks
-loader.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.46.0/min/vs' } });
+// Use unpkg CDN instead of jsDelivr for Monaco Editor to fix online loading issues/blocks
+loader.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.46.0/min/vs' } });
 
 const TOPICS = [
   { id: 'arrays', name: 'Arrays & Hashing', count: 30, icon: LayoutDashboard, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },

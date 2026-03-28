@@ -32,7 +32,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'", "*", "'unsafe-inline'", "'unsafe-eval'", "data:", "blob:"],
+      scriptSrc: ["'self'", "*", "'unsafe-inline'", "'unsafe-eval'"],
+      scriptSrcElem: ["'self'", "*", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
       connectSrc: ["'self'", "*", "'unsafe-inline'", "'unsafe-eval'", "data:", "blob:"],
+      workerSrc: ["'self'", "*", "blob:"],
     },
   },
 }));
@@ -257,9 +260,12 @@ if (process.env.NODE_ENV === 'production') {
   
   app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-  app.get('*', (req, res) =>
-    res.sendFile(path.resolve(__dirname, '../frontend', 'dist', 'index.html'))
-  );
+  app.get('*', (req, res) => {
+    if (req.path.match(/\.(js|css|json|map|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
+      return res.status(404).send('Not Found');
+    }
+    res.sendFile(path.resolve(__dirname, '../frontend', 'dist', 'index.html'));
+  });
 } else {
   app.get('/', (req, res) => {
     res.send('PrepAI Backend API is running... (Development Mode)');

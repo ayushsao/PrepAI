@@ -58,9 +58,9 @@ const Dashboard = () => {
              </p>
            </div>
            <div className="flex gap-4">
-             <button className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all">
+             <Link to="/interview" className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center">
                Resume Last Session
-             </button>
+             </Link>
              <Link to="/interview" className="px-8 py-4 bg-brand-cyan text-brand-dark rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:scale-105 shadow-[0_10px_30px_rgba(34,211,238,0.3)]">
                Start New Interview
              </Link>
@@ -206,30 +206,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Milestones Card Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10">
-          {[
-            { title: 'Google Prep Simulation', category: 'SCHEDULED', time: 'T-Minus 14:02', icon: Video, action: 'Start' },
-            { title: 'Trie Data Structure', category: 'NEW DAILY', time: 'Hard Mode', icon: BookOpen, action: 'Resume' },
-            { title: 'Amazon L6 Behavioral', category: 'REVIEW READY', time: 'AI Analyzed', icon: Trophy, action: 'View Report' }
-          ].map((card, i) => (
-             <div key={i} className="bg-[#0a0b0d] border border-white/5 rounded-3xl p-8 group transition-all hover:border-brand-cyan/10">
-                <div className="flex justify-between items-start mb-6">
-                   <div className="p-4 bg-white/5 rounded-2xl text-brand-cyan group-hover:bg-brand-cyan/20 transition-all">
-                     <card.icon size={26} />
-                   </div>
-                   <span className="text-[8px] font-bold uppercase tracking-[0.3em] text-white/10">{card.category}</span>
-                </div>
-                <h3 className="text-lg font-black tracking-tight mb-8 group-hover:text-brand-cyan transition-colors">{card.title}</h3>
-                <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                   <span className="text-[9px] font-bold uppercase tracking-widest text-white/20">{card.time}</span>
-                   <button className="px-5 py-2 bg-white/5 border border-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-dark transition-all">
-                     {card.action}
-                   </button>
-                </div>
-             </div>
-          ))}
-        </div>
+
 
         <footer className="mt-12 py-8 border-t border-white/5 flex justify-between items-center opacity-20">
            <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.3em]">
