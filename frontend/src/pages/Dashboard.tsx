@@ -48,29 +48,29 @@ const Dashboard = () => {
       <Sidebar />
 
       {/* Main Dashboard Content */}
-      <main className="flex-1 overflow-y-auto p-12 custom-scrollbar bg-[#08090b]">
+      <main className="flex-1 overflow-y-auto p-6 lg:p-12 custom-scrollbar bg-[#08090b] relative pt-20 lg:pt-12">
         {/* Header Greeting */}
-        <header className="flex flex-col lg:flex-row justify-between items-start mb-12 gap-8">
+        <header className="flex flex-col xl:flex-row justify-between items-start mb-12 gap-8">
            <div className="space-y-2">
-             <h1 className="text-4xl font-black tracking-tight leading-none text-nowrap">Welcome back, {user?.name.split(' ')[0]}.</h1>
-             <p className="text-lg text-white/40 max-w-xl font-medium leading-relaxed">
+             <h1 className="text-3xl lg:text-4xl font-black tracking-tight leading-none">Welcome back, {user?.name.split(' ')[0]}.</h1>
+             <p className="text-base lg:text-lg text-white/40 max-w-xl font-medium leading-relaxed">
                Your interview readiness score is up <span className="text-brand-cyan font-black">15%</span> this week. You're approaching peak performance.
              </p>
            </div>
-           <div className="flex gap-4">
-             <Link to="/interview" className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center">
+           <div className="flex flex-wrap gap-4 w-full xl:w-auto">
+             <Link to="/interview" className="flex-1 xl:flex-none px-6 lg:px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center text-center">
                Resume Last Session
              </Link>
-             <Link to="/interview" className="px-8 py-4 bg-brand-cyan text-brand-dark rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:scale-105 shadow-[0_10px_30px_rgba(34,211,238,0.3)]">
+             <Link to="/interview" className="flex-1 xl:flex-none px-6 lg:px-8 py-4 bg-brand-cyan text-brand-dark rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:scale-105 shadow-[0_10px_30px_rgba(34,211,238,0.3)] flex items-center justify-center text-center">
                Start New Interview
              </Link>
            </div>
         </header>
 
         {/* Top Grid: Readiness Breakdown & Status */}
-        <div className="grid grid-cols-12 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
           {/* Readiness Gauge */}
-          <div className="col-span-12 lg:col-span-7 bg-[#0a0b0d] border border-white/5 rounded-[40px] p-10 flex flex-col md:flex-row items-center gap-12 group hover:border-brand-cyan/20 transition-all duration-500 shadow-2xl relative overflow-hidden">
+          <div className="col-span-1 lg:col-span-12 xl:col-span-7 bg-[#0a0b0d] border border-white/5 rounded-[40px] p-8 lg:p-10 flex flex-col md:flex-row items-center gap-12 group hover:border-brand-cyan/20 transition-all duration-500 shadow-2xl relative overflow-hidden">
              <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-cyan/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
              
              <div className="relative w-52 h-52 shrink-0 group-hover:scale-105 transition-transform duration-500">
@@ -109,7 +109,7 @@ const Dashboard = () => {
              </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-5 flex flex-col gap-8">
+          <div className="col-span-1 lg:col-span-12 xl:col-span-5 flex flex-col gap-8">
             <div className="bg-[#0a0b0d] border border-white/5 rounded-[32px] p-8 flex-1 group transition-all hover:bg-white/[0.01]">
                <div className="flex justify-between items-start mb-6">
                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20">Active Status</span>

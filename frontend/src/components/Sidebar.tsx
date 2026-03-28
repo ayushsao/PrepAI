@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Layout, 
@@ -8,13 +8,16 @@ import {
   History, 
   Plus, 
   Settings, 
-  LogOut 
+  LogOut,
+  Menu,
+  X
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
     { label: 'Dashboard', icon: Layout, path: '/dashboard' },
@@ -25,7 +28,25 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-72 border-r border-white/[0.03] bg-[#0a0b0d] flex flex-col shrink-0 p-8 shadow-2xl z-50">
+    <>
+      {/* Mobile Toggle Button */}
+      <button 
+        className="lg:hidden absolute top-6 right-6 z-50 p-2 bg-[#0a0b0d] border border-white/10 rounded-xl text-white hover:bg-white/5 transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Backdrop for mobile */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Content */}
+      <aside className={`w-72 border-r border-white/[0.03] bg-[#0a0b0d] flex-col shrink-0 p-8 shadow-2xl z-50 fixed inset-y-0 left-0 lg:relative lg:flex transition-transform duration-300 ${isOpen ? 'translate-x-0 flex' : '-translate-x-full lg:translate-x-0'}`}>
       <div className="flex items-center gap-3 mb-10 px-2 transition-transform hover:scale-[1.02]">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-10 h-10 bg-brand-cyan rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(0,255,255,0.2)]">
@@ -59,6 +80,7 @@ const Sidebar = () => {
             <Link 
               key={i} 
               to={item.path}
+              onClick={() => setIsOpen(false)}
               className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group ${isActive ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20 shadow-[0_0_20px_rgba(0,255,255,0.05)]' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
             >
               <item.icon size={20} className={isActive ? 'text-brand-cyan' : 'group-hover:text-brand-cyan transition-colors'} />
@@ -70,13 +92,13 @@ const Sidebar = () => {
       </nav>
 
       <div className="pt-8 border-t border-white/5 space-y-4">
-        <Link to="/interview" className="w-full py-4 bg-brand-cyan text-brand-dark rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_10px_30px_rgba(34,211,238,0.2)]">
+        <Link to="/interview" onClick={() => setIsOpen(false)} className="w-full py-4 bg-brand-cyan text-brand-dark rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_10px_30px_rgba(34,211,238,0.2)]">
           <Plus size={18} strokeWidth={3} />
           New Interview
         </Link>
         
         <div className="space-y-4 px-1.5">
-          <Link to="/settings" className={`flex items-center gap-4 transition-colors ${location.pathname === '/settings' ? 'text-brand-cyan' : 'text-white/30 hover:text-white'}`}>
+          <Link to="/settings" onClick={() => setIsOpen(false)} className={`flex items-center gap-4 transition-colors ${location.pathname === '/settings' ? 'text-brand-cyan' : 'text-white/30 hover:text-white'}`}>
             <Settings size={18} />
             <span className="text-xs font-bold tracking-tight">Settings</span>
           </Link>
@@ -87,6 +109,7 @@ const Sidebar = () => {
         </div>
       </div>
     </aside>
+    </>
   );
 };
 

@@ -48,10 +48,10 @@ const Settings = () => {
     <div className="h-screen w-full flex bg-[#08090b] text-white overflow-hidden font-sans">
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto p-12 custom-scrollbar bg-[#08090b]">
-        <header className="mb-12">
-           <h1 className="text-4xl font-black tracking-tight leading-none uppercase tracking-widest text-white/90">System Configuration</h1>
-           <p className="text-lg text-white/40 max-w-xl font-medium mt-2">
+      <main className="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar bg-[#08090b] relative pt-20 lg:pt-12">
+        <header className="mb-8 md:mb-12">
+           <h1 className="text-2xl md:text-4xl font-black tracking-tight leading-none uppercase tracking-widest text-white/90">System Configuration</h1>
+           <p className="text-sm md:text-lg text-white/40 max-w-xl font-medium mt-2">
              Tune your PrepAI experience for maximum architectural performance.
            </p>
         </header>

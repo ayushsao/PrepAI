@@ -72,20 +72,20 @@ const Analytics = () => {
     <div className="h-screen w-full flex bg-[#08090b] text-white overflow-hidden font-sans">
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto p-12 custom-scrollbar bg-[#08090b]">
-        <header className="flex flex-col lg:flex-row justify-between items-start mb-12 gap-8">
+      <main className="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar bg-[#08090b] relative pt-20 lg:pt-12">
+        <header className="flex flex-col xl:flex-row justify-between items-start mb-12 gap-8">
            <div className="space-y-2">
-             <h1 className="text-4xl font-black tracking-tight leading-none uppercase tracking-widest text-white/90">Performance Analytics</h1>
-             <p className="text-lg text-white/40 max-w-xl font-medium leading-relaxed">
+             <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-none uppercase text-white/90">Performance Analytics</h1>
+             <p className="text-sm md:text-base lg:text-lg text-white/40 max-w-xl font-medium leading-relaxed">
                Comprehensive intelligence on your behavioral and technical progress.
              </p>
            </div>
-           <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+           <div className="flex flex-wrap bg-white/5 p-1 rounded-2xl border border-white/5">
              {['7d', '30d', 'All'].map(range => (
                <button 
                 key={range}
                 onClick={() => setTimeRange(range)}
-                className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${timeRange === range ? 'bg-brand-cyan text-brand-dark shadow-lg' : 'text-white/30 hover:text-white'}`}
+                className={`px-4 md:px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${timeRange === range ? 'bg-brand-cyan text-brand-dark shadow-lg' : 'text-white/30 hover:text-white'}`}
                >
                  {range}
                </button>
@@ -94,7 +94,7 @@ const Analytics = () => {
         </header>
 
         {/* High-Level Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-8 mb-12">
            {metrics.map((m, i) => (
              <motion.div 
               key={i}
@@ -111,17 +111,17 @@ const Analytics = () => {
                    {m.change}
                  </span>
                </div>
-               <h3 className="text-sm font-black text-white/30 uppercase tracking-widest mb-1">{m.label}</h3>
-               <p className="text-2xl font-black tracking-tighter">{m.value}</p>
+               <h3 className="text-xs md:text-sm font-black text-white/30 uppercase tracking-widest mb-1 truncate">{m.label}</h3>
+               <p className="text-xl md:text-2xl font-black tracking-tighter">{m.value}</p>
              </motion.div>
            ))}
         </div>
 
-        <div className="grid grid-cols-12 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 mb-12">
           {/* Readiness Progression Chart (SVG) */}
-          <div className="col-span-12 lg:col-span-8 bg-[#0a0b0d] border border-white/5 rounded-[40px] p-10 min-h-[440px] flex flex-col shadow-2xl relative">
-             <div className="flex justify-between items-center mb-12">
-               <h3 className="text-lg font-black tracking-widest uppercase text-white/80">Readiness Progression</h3>
+          <div className="col-span-1 lg:col-span-12 xl:col-span-8 bg-[#0a0b0d] border border-white/5 rounded-[40px] p-6 md:p-10 min-h-[350px] md:min-h-[440px] flex flex-col shadow-2xl relative">
+             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 md:mb-12 gap-4">
+               <h3 className="text-base md:text-lg font-black tracking-widest uppercase text-white/80">Readiness Progression</h3>
                <div className="flex gap-4">
                  <span className="flex items-center gap-2 text-[9px] font-black uppercase text-white/20">
                    <div className="w-2.5 h-2.5 rounded-full bg-brand-cyan" /> Target
@@ -197,8 +197,8 @@ const Analytics = () => {
              </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
-             <div className="bg-[#0a0b0d] border border-white/5 rounded-[40px] p-8 min-h-[440px] flex flex-col shadow-2xl relative overflow-hidden">
+          <div className="col-span-1 lg:col-span-12 xl:col-span-4 flex flex-col gap-8">
+             <div className="bg-[#0a0b0d] border border-white/5 rounded-[40px] p-6 md:p-8 min-h-[440px] flex flex-col shadow-2xl relative overflow-hidden">
                 <h3 className="text-lg font-black tracking-widest uppercase text-white/80 mb-8">Skill Mastery</h3>
                 
                 <div className="space-y-8 flex-1">

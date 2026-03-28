@@ -279,20 +279,20 @@ const InterviewSession = () => {
 
   return (
     <div className="h-screen w-full flex flex-col bg-[#08090b] text-white overflow-hidden font-sans">
-      <header className="h-16 border-b border-white/[0.03] bg-[#0a0b0d] flex items-center justify-between px-8 shrink-0 relative z-50">
-        <div className="flex items-center gap-12">
+      <header className="h-auto md:h-16 py-3 md:py-0 border-b border-white/[0.03] bg-[#0a0b0d] flex flex-col md:flex-row items-center justify-between px-4 md:px-8 shrink-0 relative z-50 gap-4 md:gap-0">
+        <div className="flex items-center gap-6 md:gap-12 w-full md:w-auto justify-between md:justify-start">
           <Link to="/" className="flex items-center gap-2">
             <span className="text-xl font-bold tracking-tight">PrepAI</span>
           </Link>
-          <nav className="flex items-center gap-10">
+          <nav className="flex items-center gap-6 md:gap-10">
             <Link to="/dashboard" className="text-[11px] font-bold text-white/40 uppercase tracking-widest hover:text-white transition-colors">Dashboard</Link>
-            <Link to="/interview" className="text-[11px] font-bold text-brand-cyan uppercase tracking-widest border-b-2 border-brand-cyan py-5">AI Mock Interviews</Link>
+            <Link to="/interview" className="text-[11px] font-bold text-brand-cyan uppercase tracking-widest border-b-2 border-brand-cyan py-3 md:py-5">AI Interview</Link>
           </nav>
         </div>
       </header>
 
-      <div className="flex-1 flex min-h-0">
-        <aside className="w-64 border-r border-white/[0.03] bg-[#08090b] flex flex-col shrink-0 p-8">
+      <div className="flex-1 flex min-h-0 flex-col md:flex-row">
+        <aside className="hidden md:flex w-64 border-r border-white/[0.03] bg-[#08090b] flex-col shrink-0 p-8">
           <div className="mb-12">
             <h2 className="text-lg font-bold tracking-tight mb-0.5">Architect Mode</h2>
             <div className="text-[9px] font-bold uppercase text-white/20 tracking-[0.2em]">System Active</div>
@@ -309,8 +309,8 @@ const InterviewSession = () => {
           </nav>
         </aside>
 
-        <main className="flex-1 overflow-y-auto p-10 flex flex-col gap-8 custom-scrollbar bg-[#08090b]">
-          <div className="w-full aspect-video bg-[#0a0b0d] rounded-[32px] overflow-hidden relative border border-white/5 shadow-2xl">
+        <main className="flex-1 overflow-y-auto p-4 md:p-10 flex flex-col gap-6 md:gap-8 custom-scrollbar bg-[#08090b]">
+          <div className="w-full aspect-[4/3] md:aspect-video bg-[#0a0b0d] rounded-2xl md:rounded-[32px] overflow-hidden relative border border-white/5 shadow-2xl">
             
             <video 
               ref={videoRef}
@@ -332,20 +332,20 @@ const InterviewSession = () => {
                </span>
             </div>
 
-            <div className="absolute bottom-8 left-8 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-5 flex items-center gap-5 min-w-[280px]">
-               <div className="flex gap-1.5 items-end h-6">
+            <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 rounded-xl md:rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-3 md:p-5 flex items-center gap-3 md:gap-5 max-w-[calc(100%-2rem)] md:min-w-[280px]">
+               <div className="flex gap-1 md:gap-1.5 items-end h-4 md:h-6 shrink-0">
                   {[3, 7, 5, 9, 4, 8].map((h, i) => (
                     <motion.div 
                       key={i} 
                       animate={{ height: isAiSpeaking ? ['20%', '100%', '40%', '80%', '20%'] : '20%' }} 
                       transition={{ duration: 1, repeat: Infinity, delay: i * 0.1 }}
-                      className="w-1 bg-brand-cyan rounded-full" 
+                      className="w-0.5 md:w-1 bg-brand-cyan rounded-full" 
                     />
                   ))}
                </div>
-               <div>
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-cyan mb-0.5">AI Analyst</h4>
-                  <p className="text-[10px] font-bold text-white/30">
+               <div className="min-w-0">
+                  <h4 className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-brand-cyan mb-0.5 truncate">AI Analyst</h4>
+                  <p className="text-[9px] md:text-[10px] font-bold text-white/30 truncate">
                     {isAiSpeaking ? 'Speaking...' : hasStarted ? 'Listening for intent...' : 'Ready to start'}
                   </p>
                </div>
@@ -364,27 +364,27 @@ const InterviewSession = () => {
             )}
           </div>
 
-          <div className="bg-[#0e0f12] border border-white/5 rounded-[32px] p-12 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-cyan/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-            <div className="relative z-10 space-y-8">
-               <span className="px-5 py-2 bg-[#1b232e] text-blue-400 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] inline-block mb-2">
+          <div className="bg-[#0e0f12] border border-white/5 rounded-2xl md:rounded-[32px] p-6 md:p-12 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-brand-cyan/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+            <div className="relative z-10 space-y-6 md:space-y-8">
+               <span className="px-4 md:px-5 py-2 bg-[#1b232e] text-blue-400 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] inline-block mb-2">
                  Live Feed
                </span>
-               <div className="text-2xl lg:text-3xl font-medium leading-relaxed font-sans text-white/90 max-w-[80%]">
+               <div className="text-xl md:text-2xl lg:text-3xl font-medium leading-relaxed font-sans text-white/90 max-w-full md:max-w-[80%]">
                  {[...messages].reverse().find(m => m.role === 'assistant')?.content || "Connecting..."}
                </div>
 
                {transcript && (
-                 <div className="mt-4 p-4 border-l-2 border-brand-cyan/40 bg-brand-cyan/5 text-white/60 text-sm italic">
+                 <div className="mt-4 p-4 border-l-2 border-brand-cyan/40 bg-brand-cyan/5 text-white/60 text-xs md:text-sm italic">
                    ... {transcript.substring(Math.max(0, transcript.length - 100), transcript.length)}
                  </div>
                )}
                
-               <div className="flex gap-4 pt-4">
-                  <button onClick={repeatQuestion} disabled={!hasStarted || isAiProcessing} className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-xs font-bold transition-all disabled:opacity-50">
+               <div className="flex flex-col md:flex-row gap-4 pt-4">
+                  <button onClick={repeatQuestion} disabled={!hasStarted || isAiProcessing} className="flex items-center justify-center md:justify-start gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-xs font-bold transition-all disabled:opacity-50">
                     <RotateCcw size={16} /> Repeat Question
                   </button>
-                  <button id="autoSubmitBtn" onClick={handleSubmitAnswer} disabled={!hasStarted || isAiProcessing || !transcript.trim()} className="flex items-center gap-3 px-6 py-3 bg-brand-cyan/10 hover:bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/20 rounded-2xl text-xs font-bold transition-all disabled:opacity-50 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
+                  <button id="autoSubmitBtn" onClick={handleSubmitAnswer} disabled={!hasStarted || isAiProcessing || !transcript.trim()} className="flex items-center justify-center md:justify-start gap-3 px-6 py-3 bg-brand-cyan/10 hover:bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/20 rounded-2xl text-xs font-bold transition-all disabled:opacity-50 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
                     <CheckCircle2 size={16} /> {isAiProcessing ? 'Thinking...' : 'Submit Answer'}
                   </button>
                </div>
@@ -392,7 +392,7 @@ const InterviewSession = () => {
           </div>
         </main>
 
-        <aside className="w-[380px] border-l border-white/[0.03] bg-[#08090b] p-8 flex flex-col gap-10 shrink-0">
+        <aside className="w-full lg:w-[380px] border-t lg:border-t-0 lg:border-l border-white/[0.03] bg-[#08090b] p-6 md:p-8 flex flex-col gap-8 md:gap-10 shrink-0">
           <div>
             <div className="flex items-center gap-3 mb-8">
                <BarChart3 size={18} className="text-brand-cyan" />
@@ -427,20 +427,20 @@ const InterviewSession = () => {
         </aside>
       </div>
 
-      <footer className="h-24 bg-[#0a0b0d] border-t border-white/[0.03] flex items-center justify-between px-10 shrink-0 relative z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center gap-6">
+      <footer className="h-20 md:h-24 bg-[#0a0b0d] border-t border-white/[0.03] flex items-center justify-center md:justify-between px-6 md:px-10 shrink-0 relative z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center gap-4 md:gap-6">
           <button 
             onClick={() => setMicOn(!micOn)}
-            className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${micOn ? 'bg-white/5 hover:bg-white/10 text-white border border-white/5' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}
+            className={`w-12 h-12 md:w-14 md:h-14 rounded-full md:rounded-2xl flex items-center justify-center transition-all ${micOn ? 'bg-white/5 hover:bg-white/10 text-white border border-white/5' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}
           >
-            {micOn ? <Mic size={22} /> : <MicOff size={22} />}
+            {micOn ? <Mic size={20} /> : <MicOff size={20} />}
           </button>
           
           <button 
             onClick={() => setVideoOn(!videoOn)}
-            className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${videoOn ? 'bg-white/5 hover:bg-white/10 text-white border border-white/5' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}
+            className={`w-12 h-12 md:w-14 md:h-14 rounded-full md:rounded-2xl flex items-center justify-center transition-all ${videoOn ? 'bg-white/5 hover:bg-white/10 text-white border border-white/5' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}
           >
-            {videoOn ? <Video size={22} /> : <VideoOff size={22} />}
+            {videoOn ? <Video size={20} /> : <VideoOff size={20} />}
           </button>
         </div>
       </footer>

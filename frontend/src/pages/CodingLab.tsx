@@ -392,34 +392,34 @@ const CodingLab = () => {
   return (
     <div className="h-screen w-full flex flex-col bg-[#0a0a0c] text-white overflow-hidden font-sans selection:bg-brand-cyan/30">
       {/* Top Header */}
-      <header className="h-14 border-b border-white/5 bg-[#0a0a0c] flex items-center justify-between px-6 shrink-0 relative z-50 shadow-2xl">
-        <div className="flex items-center gap-8">
+      <header className="h-auto md:h-14 py-3 md:py-0 border-b border-white/5 bg-[#0a0a0c] flex flex-col md:flex-row items-center justify-between px-4 md:px-6 shrink-0 relative z-50 shadow-2xl gap-3 md:gap-0">
+        <div className="flex items-center justify-between w-full md:w-auto md:gap-8">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-7 h-7 bg-brand-cyan rounded flex items-center justify-center">
               <Layout className="w-4 h-4 text-brand-dark" />
             </div>
             <span className="text-lg font-bold tracking-tight">PrepAI</span>
           </Link>
-          <nav className="flex items-center gap-6">
+          <nav className="items-center gap-6 hidden md:flex">
             <Link to="/dashboard" className="text-xs font-bold text-white/40 hover:text-white transition-colors uppercase tracking-widest">Dashboard</Link>
             <Link to="/coding-lab" className="text-xs font-bold text-brand-cyan uppercase tracking-widest border-b-2 border-brand-cyan py-4">Coding Lab</Link>
             <Link to="/interview" className="text-xs font-bold text-white/40 hover:text-white transition-colors uppercase tracking-widest">Mock Interviews</Link>
           </nav>
         </div>
         
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-brand-cyan/10 border border-brand-cyan/20 px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(0,255,255,0.1)]">
+        <div className="flex items-center gap-2 md:gap-4 w-full md:w-auto justify-between md:justify-end overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2 bg-brand-cyan/10 border border-brand-cyan/20 px-3 md:px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(0,255,255,0.1)] shrink-0">
             <Clock className="w-3.5 h-3.5 text-brand-cyan" />
             <span className="text-sm font-mono font-bold text-brand-cyan tracking-wider">{formatTime(timeLeft)}</span>
           </div>
-          <button onClick={handleAskHint} disabled={isAskingHint || view !== 'editor'} className="flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-bold hover:bg-white/10 transition-all text-white/70 disabled:opacity-50">
+          <button onClick={handleAskHint} disabled={isAskingHint || view !== 'editor'} className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-[10px] md:text-xs font-bold hover:bg-white/10 transition-all text-white/70 disabled:opacity-50 shrink-0">
             {isAskingHint ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-brand-cyan" />}
-            <span>Ask AI Hint</span>
+            <span className="whitespace-nowrap">Ask AI Hint</span>
           </button>
           <button 
             onClick={handleSubmitSolution}
             disabled={isSubmitting || view !== 'editor'}
-            className="px-6 py-2 bg-brand-cyan text-brand-dark text-xs font-bold rounded-lg glow-button hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center min-w-[140px]"
+            className="px-4 md:px-6 py-1.5 md:py-2 bg-brand-cyan text-brand-dark text-[10px] md:text-xs font-bold rounded-lg glow-button hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center min-w-[110px] md:min-w-[140px] shrink-0"
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit Solution"}
           </button>
@@ -542,9 +542,9 @@ const CodingLab = () => {
         )}
 
         {view === 'editor' && (
-          <div className="flex-1 w-full grid grid-cols-1 lg:grid-cols-12 bg-brand-dark overflow-hidden">
+          <div className="flex-1 w-full flex flex-col lg:grid lg:grid-cols-12 bg-brand-dark overflow-y-auto lg:overflow-hidden custom-scrollbar">
             {/* Left Panel */}
-            <div className="lg:col-span-4 h-full border-r border-white/5 overflow-y-auto p-10 flex flex-col gap-10 custom-scrollbar bg-[#0f0f12]">
+            <div className="lg:col-span-4 lg:h-full border-b lg:border-b-0 lg:border-r border-white/5 overflow-y-auto p-6 md:p-10 flex flex-col gap-10 custom-scrollbar bg-[#0f0f12] shrink-0">
               <div className="flex-1">
                 <button 
                   onClick={() => setView('questions')}
@@ -609,7 +609,7 @@ const CodingLab = () => {
         </div>
 
         {/* Right Panel */}
-        <div ref={editorContainerRef} className="lg:col-span-8 flex flex-col h-full bg-[#0a0a0c] relative min-h-0 overflow-hidden">
+        <div ref={editorContainerRef} className="lg:col-span-8 flex flex-col h-full bg-[#0a0a0c] relative min-h-[600px] lg:min-h-0 overflow-hidden">
           {/* Editor Header */}
           <div className="h-12 px-6 flex items-center justify-between border-b border-white/5 bg-[#0f0f12] shrink-0">
             <div className="flex items-center gap-6">
