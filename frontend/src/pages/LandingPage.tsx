@@ -148,10 +148,10 @@ const SessionPreview = () => (
           <div className="lg:col-span-2 p-1">
             <div className="aspect-video relative rounded-2xl overflow-hidden bg-black">
               <img 
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=4&w=1200&h=800&q=80" 
+                src="https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1200"
                 alt="Interviewer"
                 className="w-full h-full object-cover object-center opacity-80"
-                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
               />
               <div className="absolute bottom-6 left-6 flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
@@ -381,9 +381,9 @@ const AboutPrepAI = () => (
           <div className="aspect-square max-w-[500px] mx-auto bg-gradient-to-tr from-brand-cyan/20 to-transparent rounded-[3rem] p-1 border border-white/10 shadow-2xl relative">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.1),transparent_70%)] pointer-events-none" />
             <div className="w-full h-full bg-[#0a0b0d] rounded-[2.8rem] overflow-hidden relative">
-               <img 
-                 src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80" 
-                 alt="Coding and Interviews" 
+               <img
+                 src="https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                 alt="Coding and Interviews"
                  className="w-full h-full object-cover opacity-50 contrast-125 mix-blend-luminosity hover:scale-105 transition-transform duration-700"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0d] via-transparent to-transparent" />
