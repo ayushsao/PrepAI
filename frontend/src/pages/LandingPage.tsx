@@ -151,7 +151,7 @@ const SessionPreview = () => (
                 src="https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1200"
                 alt="Interviewer"
                 className="w-full h-full object-cover object-center opacity-80"
-                crossOrigin="anonymous"
+
               />
               <div className="absolute bottom-6 left-6 flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
