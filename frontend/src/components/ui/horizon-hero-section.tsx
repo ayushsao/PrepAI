@@ -575,16 +575,6 @@ export const Component = () => {
       <div className="sticky top-0 left-0 w-full h-screen overflow-hidden">
         <canvas ref={canvasRef} className="hero-canvas absolute top-0 left-0 w-full h-full pointer-events-none z-0" />
         
-        {/* Side menu */}
-        <div ref={menuRef} className="side-menu absolute left-8 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-8" style={{ visibility: 'hidden' }}>
-          <div className="menu-icon flex flex-col gap-1 cursor-pointer hover:opacity-75 transition-opacity">
-            <span className="w-8 h-[2px] bg-white block"></span>
-            <span className="w-8 h-[2px] bg-white block"></span>
-            <span className="w-8 h-[2px] bg-white block"></span>
-          </div>
-          <div className="vertical-text rotate-[-90deg] tracking-[0.5em] text-sm opacity-50 whitespace-nowrap">CAREER</div>
-        </div>
-
         {/* Main content */}
         <div 
           className="hero-content cosmos-content absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center pointer-events-none z-10 p-6 text-center transition-opacity duration-500"

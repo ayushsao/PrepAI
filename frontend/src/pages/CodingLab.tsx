@@ -82,20 +82,27 @@ const getMockQuestions = (topicName: string, solvedSet: Set<string> = new Set())
   if (topicName === 'Arrays & Hashing') {
     return ARRAYS_QUESTIONS.map((title, i) => {
       const qId = `${topicName}-q${i + 1}`;
+      const difficulty = i % 4 === 0 ? 'Hard' : i % 2 === 0 ? 'Medium' : 'Easy';
+      const baseAcceptance = difficulty === 'Hard' ? 25 : difficulty === 'Medium' ? 45 : 65;
+      const acceptanceVal = baseAcceptance + (i * 7 % 20); // deterministic pseudo-random
+
       return {
         id: qId,
         originalId: `q${i + 1}`,
         title: title,
-        difficulty: i % 4 === 0 ? 'Hard' : i % 2 === 0 ? 'Medium' : 'Easy',
+        difficulty,
         status: solvedSet.has(qId) ? 'solved' : (i === 3 ? 'attempted' : 'todo'),
-        acceptance: `${Math.floor(Math.random() * 40 + 40)}%`,
+        acceptance: `${acceptanceVal}%`,
       };
     });
   }
 
   return Array.from({ length: 30 }, (_, i) => {
     const qId = `${topicName}-q${i + 1}`;
-    let isSolvedByDefault = i === 0;
+    const isSolvedByDefault = i === 0;
+    const difficulty = i % 4 === 0 ? 'Hard' : i % 2 === 0 ? 'Medium' : 'Easy';
+    const baseAcceptance = difficulty === 'Hard' ? 20 : difficulty === 'Medium' ? 40 : 70;
+    const acceptanceVal = baseAcceptance + (i * 13 % 18);
     
     return {
       id: qId,
@@ -104,9 +111,9 @@ const getMockQuestions = (topicName: string, solvedSet: Set<string> = new Set())
              i === 1 && topicName.includes('Array') ? "Best Time to Buy and Sell Stock" :
              i === 0 && topicName.includes('String') ? "Valid Palindrome" :
              `${topicName} Protocol ${i + 1}`,
-      difficulty: i % 4 === 0 ? 'Hard' : i % 2 === 0 ? 'Medium' : 'Easy',
+      difficulty,
       status: solvedSet.has(qId) || isSolvedByDefault ? 'solved' : (i === 1 ? 'attempted' : 'todo'),
-      acceptance: `${Math.floor(Math.random() * 40 + 40)}%`,
+      acceptance: `${acceptanceVal}%`,
     };
   });
 };

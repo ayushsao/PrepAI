@@ -115,7 +115,7 @@ const Dashboard = () => {
                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20">Active Status</span>
                  <div className="flex items-center gap-2">
                    <div className="w-1.5 h-1.5 rounded-full bg-brand-cyan animate-pulse" />
-                   <span className="text-[9px] font-bold text-brand-cyan uppercase tracking-widest italic">AI analyzing...</span>
+                   <span className="text-[9px] font-bold text-brand-cyan uppercase tracking-widest italic">{!analytics ? 'Loading...' : (analytics.recentSessions?.length > 0 ? 'AI Analyzing...' : 'System Ready')}</span>
                  </div>
                </div>
                <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-white/10 mb-1">Last session focus</h3>
@@ -125,7 +125,7 @@ const Dashboard = () => {
             <div className="bg-[#0a0b0d] border border-white/5 rounded-[32px] p-8 group transition-all flex justify-between items-center hover:bg-white/[0.01]">
                <div>
                  <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 mb-1">Weekly Streak</h3>
-                 <p className="text-4xl font-black tracking-tighter">{streak} Days</p>
+                 <p className="text-4xl font-black tracking-tighter">{streak} {streak === 1 ? 'Day' : 'Days'}</p>
                </div>
                <div className="p-4 bg-brand-cyan/10 rounded-2xl text-brand-cyan shadow-[0_0_20px_rgba(34,211,238,0.1)] group-hover:scale-110 group-hover:rotate-6 transition-all">
                  <Flame size={32} />
