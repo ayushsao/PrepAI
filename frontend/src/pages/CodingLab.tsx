@@ -30,8 +30,8 @@ import {
 import { Link } from 'react-router-dom';
 import { Editor as MonacoEditor, loader } from '@monaco-editor/react';
 
-// Use unpkg CDN instead of jsDelivr for Monaco Editor to fix online loading issues/blocks
-loader.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.46.0/min/vs' } });
+// Use default jsDelivr CDN for Monaco Editor by omitting manual config
+// loader.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.46.0/min/vs' } });
 
 const TOPICS = [
   { id: 'arrays', name: 'Arrays & Hashing', count: 30, icon: LayoutDashboard, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
@@ -904,8 +904,9 @@ const CodingLab = () => {
                       <div className="w-full p-6 bg-white/[0.01] border border-white/5 rounded-2xl group-focus-within:border-brand-cyan/30 transition-all">
                         <input 
                           type="text" 
-                          value={testCases[selectedCase].input}
+                          value={testCases[selectedCase]?.input || ''}
                           onChange={(e) => {
+                            if (!testCases[selectedCase]) return;
                             const newCases = [...testCases];
                             newCases[selectedCase].input = e.target.value;
                             setTestCases(newCases);
