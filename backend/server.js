@@ -24,6 +24,8 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy for express-rate-limit
+
 const port = process.env.PORT || 3001;
 
 // Initialize Google Gen AI
