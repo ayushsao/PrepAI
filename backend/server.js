@@ -355,10 +355,9 @@ const groqMessages = [
     }
 });
 
-  const __dirname = path.dirname(__filename);
-  
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
+// Serve frontend in production
+if (process.env.NODE_ENV === 'production') {
+  const __filename = fileURLToPath(import.meta.url);
   app.get('*', (req, res) => {
     if (req.path.match(/\.(js|css|json|map|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
       return res.status(404).send('Not Found');
