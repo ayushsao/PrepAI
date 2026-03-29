@@ -55,6 +55,24 @@ body::after {
   box-shadow: 0 0 30px rgba(34, 211, 238, 0.5);
 }
 
+.glow-button:active {
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.8) !important;
+  background-color: #06b6d4 !important;
+  color: #fff !important;
+  transform: scale(0.95);
+  transition: all 0.1s ease-in-out;
+}
+
+.nav-link-glow {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link-glow:active {
+  color: #22d3ee !important;
+  text-shadow: 0 0 15px rgba(34, 211, 238, 0.8);
+  transform: scale(0.95);
+}
+
 /* Animation for the pulsing effect */
 @keyframes pulse {
   0%, 100% {

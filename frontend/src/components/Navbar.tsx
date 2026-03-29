@@ -18,10 +18,10 @@ const Navbar = () => {
         </Link>
         
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/dashboard" className="text-sm font-medium text-brand-cyan">Dashboard</Link>
-          <a href="/#features" className="text-sm font-medium text-white/60 hover:text-white transition-colors">Features</a>
-          <Link to="/pricing" className="text-sm font-medium text-white/60 hover:text-white transition-colors">Pricing</Link>
-          <a href="/#about" className="text-sm font-medium text-white/60 hover:text-white transition-colors">About</a>
+          <Link to="/dashboard" className="text-sm font-medium text-brand-cyan nav-link-glow">Dashboard</Link>
+          <a href="/#features" className="text-sm font-medium text-white/60 hover:text-white transition-colors nav-link-glow">Features</a>
+          <Link to="/pricing" className="text-sm font-medium text-white/60 hover:text-white transition-colors nav-link-glow">Pricing</Link>
+          <a href="/#about" className="text-sm font-medium text-white/60 hover:text-white transition-colors nav-link-glow">About</a>
         </div>
 
         <div className="hidden md:flex items-center gap-6">

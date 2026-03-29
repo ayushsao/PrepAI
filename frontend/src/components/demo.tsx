@@ -1,52 +1,101 @@
 "use client";
 
 import React from "react";
-import { Calendar, Code, FileText, User, Clock } from "lucide-react";
-import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
+import { 
+  FileText, 
+  CircleDollarSign,
+  Database,
+  BarChart2,
+  CloudUpload,
+  FileSearch,
+  Cpu
+} from "lucide-react";
+import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";    
 
 const timelineData = [
   {
     id: 1,
-    title: "Setup Your Profile",
-    date: "Step 1",
-    content: "Upload your resume and select the target role. Our AI tailors questions specifically to the industry, seniority level, and company culture.",
-    category: "Preparation",
-    icon: User,
-    relatedIds: [2],
+    title: "SENTIMENT ANALYSIS",
+    date: "Phase 1",
+    content: "Live evaluation of emotional resonance and confidence levels during answers.",     
+    category: "Analysis",
+    icon: FileText,
+    relatedIds: [4],
     status: "completed" as const,
     energy: 100,
   },
   {
     id: 2,
-    title: "Live AI Mock Interview",
-    date: "Step 2",
-    content: "Practice in a realistic environment. Face follow-up questions, technical challenges, and pressure tests designed to sharpen your thinking.",
-    category: "Interview",
-    icon: Code,
-    relatedIds: [1, 3],
+    title: "MARKET ALIGNMENT",
+    date: "Phase 2",
+    content: "Benchmarking responses against current industry standards and expectations.",
+    category: "Market",
+    icon: CircleDollarSign,
+    relatedIds: [1, 6],
     status: "completed" as const,
-    energy: 80,
+    energy: 90,
   },
   {
     id: 3,
-    title: "Detailed Feedback Scorecard",
-    date: "Step 3",
-    content: "Receive a granular report within seconds. We analyze your body language, content quality, and key improvement areas for every single response.",
-    category: "Feedback",
-    icon: FileText,
+    title: "RESPONSE INTEGRITY",
+    date: "Phase 3",
+    content: "Verifying factual correctness and structural logic in answers.",  
+    category: "Data",
+    icon: Database,
     relatedIds: [2],
+    status: "completed" as const,
+    energy: 85,
+  },
+  {
+    id: 4,
+    title: "BEHAVIORAL MATCH",
+    date: "Phase 4",
+    content: "Assessing cultural fit and soft skills based on proven behavioral models.",  
+    category: "Behavior",
+    icon: BarChart2,
+    relatedIds: [1, 6],
+    status: "in-progress" as const,
+    energy: 80,
+  },
+  {
+    id: 5,
+    title: "REAL-TIME STREAM",
+    date: "Phase 5",
+    content: "Continuous bi-directional processing of audio/video for zero-latency feedback.",  
+    category: "Network",
+    icon: CloudUpload,
+    relatedIds: [3, 7],
+    status: "in-progress" as const,
+    energy: 70,
+  },
+  {
+    id: 6,
+    title: "SKILL CORRELATION",
+    date: "Phase 6",
+    content: "Mapping stated abilities to demonstrated problem-solving techniques.",  
+    category: "Skills",
+    icon: FileSearch,
+    relatedIds: [4, 7],
     status: "pending" as const,
     energy: 40,
+  },
+  {
+    id: 7,
+    title: "ARCHITECTURE SYNC",
+    date: "Phase 7",
+    content: "Unified state management across all evaluation engines.",  
+    category: "System",
+    icon: Cpu,
+    relatedIds: [5, 6],
+    status: "pending" as const,
+    energy: 20,
   }
 ];
 
 export function RadialOrbitalTimelineDemo() {
   return (
-    <section id="about" className="px-6 py-32 bg-black">
-      <div className="max-w-4xl mx-auto mb-10 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Your Path to Hiring</h2>
-      </div>
-      <div className="h-[800px] w-full rounded-[40px] overflow-hidden border border-white/5 relative">
+    <section className="px-6 py-10 bg-[#090a0c]">
+      <div className="h-[800px] w-full rounded-[40px] overflow-hidden relative">
         <RadialOrbitalTimeline timelineData={timelineData} />
       </div>
     </section>

@@ -142,19 +142,19 @@ export default function RadialOrbitalTimeline({
   const getStatusStyles = (status: TimelineItem["status"]): string => {
     switch (status) {
       case "completed":
-        return "text-white bg-black border-white";
+        return "text-[#090a0c] bg-brand-cyan border-brand-cyan";
       case "in-progress":
-        return "text-black bg-white border-black";
+        return "text-brand-cyan bg-[#090a0c] border-brand-cyan";
       case "pending":
-        return "text-white bg-black/40 border-white/50";
+        return "text-white bg-[#090a0c]/40 border-white/50";
       default:
-        return "text-white bg-black/40 border-white/50";
+        return "text-white bg-[#090a0c]/40 border-white/50";
     }
   };
 
   return (
     <div
-      className="w-full h-screen flex flex-col items-center justify-center bg-black overflow-hidden"
+      className="w-full h-screen flex flex-col items-center justify-center bg-transparent overflow-hidden"
       ref={containerRef}
       onClick={handleContainerClick}
     >
@@ -220,21 +220,21 @@ export default function RadialOrbitalTimeline({
                   w-10 h-10 rounded-full flex items-center justify-center
                   ${
                     isExpanded
-                      ? "bg-white text-black"
+                      ? "bg-brand-cyan text-brand-dark"
                       : isRelated
-                      ? "bg-white/50 text-black"
-                      : "bg-black text-white"
+                      ? "bg-brand-cyan/20 text-brand-cyan"
+                      : "bg-[#090a0c] text-brand-cyan"
                   }
                   border-2 
                   ${
                     isExpanded
-                      ? "border-white shadow-lg shadow-white/30"
+                      ? "border-brand-cyan shadow-[0_0_15px_rgba(34,211,238,0.5)]"
                       : isRelated
-                      ? "border-white animate-pulse"
-                      : "border-white/40"
+                      ? "border-brand-cyan animate-pulse"
+                      : "border-brand-cyan/40"
                   }
                   transition-all duration-300 transform
-                  ${isExpanded ? "scale-150" : ""}
+                  ${isExpanded ? "scale-150" : "hover:scale-110 hover:border-brand-cyan hover:shadow-[0_0_10px_rgba(34,211,238,0.3)]"}
                 `}
                 >
                   <Icon size={16} />
@@ -252,8 +252,8 @@ export default function RadialOrbitalTimeline({
                 </div>
 
                 {isExpanded && (
-                  <Card className="absolute top-20 left-1/2 -translate-x-1/2 w-64 bg-black/90 backdrop-blur-lg border-white/30 shadow-xl shadow-white/10 overflow-visible">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-px h-3 bg-white/50"></div>
+                  <Card className="absolute top-20 left-1/2 -translate-x-1/2 w-64 bg-[#090a0c]/90 backdrop-blur-lg border-brand-cyan/30 shadow-xl shadow-brand-cyan/10 overflow-visible">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-px h-3 bg-brand-cyan/50"></div>
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-center">
                         <Badge
