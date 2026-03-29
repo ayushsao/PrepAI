@@ -576,7 +576,7 @@ export const Component = () => {
         <canvas ref={canvasRef} className="hero-canvas absolute top-0 left-0 w-full h-full pointer-events-none z-0" />
         
         {/* Side menu */}
-        <div ref={menuRef} className="side-menu absolute left-8 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-8" style={{ visibility: 'hidden' }}>
+        <div ref={menuRef} className="side-menu absolute left-8 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col items-center gap-8" style={{ visibility: 'hidden' }}>
           <div className="menu-icon flex flex-col gap-1 cursor-pointer hover:opacity-75 transition-opacity">
             <span className="w-8 h-[2px] bg-white block"></span>
             <span className="w-8 h-[2px] bg-white block"></span>
@@ -645,7 +645,7 @@ export const Component = () => {
         })}
 
         {/* Scroll progress indicator */}
-        <div ref={scrollProgressRef} className="scroll-progress absolute right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-4" style={{ visibility: 'hidden' }}>
+        <div ref={scrollProgressRef} className="scroll-progress absolute right-8 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col items-center gap-4" style={{ visibility: 'hidden' }}>
           <div className="scroll-text rotate-90 tracking-[0.3em] text-xs opacity-50 mb-8 whitespace-nowrap">SCROLL</div>
           <div className="progress-track w-px h-32 bg-white/20 relative">
             <div 
