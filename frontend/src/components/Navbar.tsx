@@ -18,7 +18,8 @@ const Navbar = () => {
         </Link>
         
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/dashboard" className="text-sm font-medium text-brand-cyan nav-link-glow">Dashboard</Link>
+          <Link to="/" className="text-sm font-medium text-white hover:text-white transition-colors nav-link-glow">Home</Link>
+          <Link to="/dashboard" className="text-sm font-medium text-white/60 hover:text-white transition-colors nav-link-glow">Dashboard</Link>
           <a href="/#features" className="text-sm font-medium text-white/60 hover:text-white transition-colors nav-link-glow">Features</a>
           <Link to="/pricing" className="text-sm font-medium text-white/60 hover:text-white transition-colors nav-link-glow">Pricing</Link>
           <a href="/#about" className="text-sm font-medium text-white/60 hover:text-white transition-colors nav-link-glow">About</a>
@@ -55,7 +56,8 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 right-0 bg-[#090a0c] border-b border-white/5 p-6 flex flex-col gap-6 shadow-2xl">
           <nav className="flex flex-col gap-4">
-            <Link to="/dashboard" className="text-lg font-medium text-brand-cyan w-full" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+            <Link to="/" className="text-lg font-medium text-white w-full" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+            <Link to="/dashboard" className="text-lg font-medium text-white/80 w-full" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
             <a href="/#features" className="text-lg font-medium text-white/80 w-full" onClick={() => setMobileMenuOpen(false)}>Features</a>
             <Link to="/pricing" className="text-lg font-medium text-white/80 w-full" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
             <a href="/#about" className="text-lg font-medium text-white/80 w-full" onClick={() => setMobileMenuOpen(false)}>About</a>
