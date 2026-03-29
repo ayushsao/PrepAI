@@ -404,6 +404,15 @@ const CodingLab = () => {
       java: 'openjdk-jdk-21+35'
     };
 
+    let wrappedCode = code;
+    if (language === 'cpp') {
+      wrappedCode = `#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <map>\n#include <set>\n#include <unordered_map>\n#include <unordered_set>\n#include <queue>\n#include <stack>\nusing namespace std;\n\nstruct PolyNode {\n    int coefficient, power;\n    PolyNode *next;\n    PolyNode(): coefficient(0), power(0), next(nullptr) {}\n    PolyNode(int x, int y): coefficient(x), power(y), next(nullptr) {}\n    PolyNode(int x, int y, PolyNode* next): coefficient(x), power(y), next(next) {}\n};\nstruct TreeNode {\n    int val;\n    TreeNode *left;\n    TreeNode *right;\n    TreeNode() : val(0), left(nullptr), right(nullptr) {}\n    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n};\nstruct ListNode {\n    int val;\n    ListNode *next;\n    ListNode() : val(0), next(nullptr) {}\n    ListNode(int x) : val(x), next(nullptr) {}\n    ListNode(int x, ListNode *next) : val(x), next(next) {}\n};\n\n${code}\n\nint main() {\n    // Boilerplate main function\n    // In a full execution environment, stdin parsing logic goes here.\n    return 0;\n}`;
+    } else if (language === 'java') {
+      wrappedCode = `import java.util.*;\n\n${code}\n\npublic class Main {\n    public static void main(String[] args) {\n        // Boilerplate main function\n    }\n}`;
+    } else if (language === 'python') {
+      wrappedCode = `${code}\n\nif __name__ == '__main__':\n    # Boilerplate execution snippet\n    pass`;
+    }
+
     let passedCount = 0;
     const totalCases = testCases.length;
 
@@ -417,7 +426,7 @@ const CodingLab = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             compiler: compilerMap[language as string],
-            code: code,
+            code: wrappedCode,
             stdin: tc.input || ''
           })
         });
@@ -610,6 +619,20 @@ const CodingLab = () => {
                           onClick={() => {
                             setSelectedQuestion(q);
                             setCode(getDefaultCode(q.title, language));
+                            
+                            const details = QUESTION_DETAILS[q.title];
+                            if (details) {
+                              setTestCases([
+                                { id: 1, name: 'Case 1', input: details.input, expected: details.output }
+                              ]);
+                              setSelectedCase(0);
+                            } else {
+                              setTestCases([
+                                { id: 1, name: 'Case 1', input: 'Example input', expected: 'Example output' }
+                              ]);
+                              setSelectedCase(0);
+                            }
+
                             setView('editor');
                           }}
                           className="px-4 py-1.5 bg-brand-cyan/10 text-brand-cyan text-xs font-bold rounded hover:bg-brand-cyan/20 transition-colors"
