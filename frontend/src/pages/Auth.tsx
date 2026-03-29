@@ -146,7 +146,7 @@ const Auth = () => {
                         value={formData.name}
                         onChange={handleChange}
                         className="w-full bg-white/[0.02] border border-white/10 rounded-2xl py-4 pl-14 pr-6 text-sm focus:outline-none focus:border-brand-cyan/50 focus:bg-white/[0.04] transition-all placeholder:text-white/20"
-                        placeholder="Ayush Kumar Sao"
+                        placeholder="Enter your name"
                         autoComplete="name"
                       />
                     </div>
