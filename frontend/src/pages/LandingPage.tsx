@@ -380,14 +380,10 @@ const AboutPrepAI = () => (
           <div className="aspect-square max-w-[500px] mx-auto bg-gradient-to-tr from-brand-cyan/20 to-transparent rounded-[3rem] p-1 border border-white/10 shadow-2xl relative">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.1),transparent_70%)] pointer-events-none" />
             <div className="w-full h-full bg-[#0a0b0d] rounded-[2.8rem] overflow-hidden relative">
-               <img
-                 src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1200&auto=format&fit=crop"
-                 alt="Coding and Interviews"
-                 className="w-full h-full object-cover opacity-50 contrast-125 mix-blend-luminosity hover:scale-105 transition-transform duration-700"
-               />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0d] via-transparent to-transparent" />
-               <div className="absolute bottom-8 left-8 right-8">
-                 <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl">
+               <OrbitingSkills />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0d] via-transparent to-transparent pointer-events-none" />
+               <div className="absolute bottom-8 left-8 right-8 z-20">
+                 <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl cursor-default pointer-events-auto hover:bg-white/15 transition-colors">
                     <p className="text-brand-cyan font-mono text-sm mb-2">// Mission Objective</p>
                     <p className="text-white/90 text-lg font-medium leading-snug">"Empowering engineers to walk into any room and own the technical conversation, every time."</p>
                  </div>
