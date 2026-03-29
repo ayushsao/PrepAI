@@ -33,7 +33,7 @@ const Pricing = () => {
     },
     {
       name: 'Architect Mode',
-      price: billingCycle === 'monthly' ? '499' : '399',
+      price: billingCycle === 'monthly' ? '199' : '149',
       desc: 'The gold standard for technical mastery.',
       features: [
         'Unlimited AI Mock Interviews',
