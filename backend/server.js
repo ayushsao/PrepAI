@@ -17,7 +17,6 @@ import authRoutes from './routes/authRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import { protect } from './middleware/authMiddleware.js';
 import User from './models/User.js';
-import Stripe from 'stripe';
 
 dotenv.config();
 
@@ -355,42 +354,7 @@ const groqMessages = [
       res.status(500).json({ error: 'Failed to fetch user analytics' });
     }
 });
-// Stripe Payment Integration
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-app.post('/api/create-checkout-session', async (req, res) => {
-  try {
-    const { amount, currency = 'inr', productName = 'PrepAI Subscription', billingCycle = 'monthly' } = req.body;
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: currency,
-            product_data: {
-              name: productName,
-              description: `${productName} - ${billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1)}`,
-            },
-            unit_amount: amount, 
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `${req.headers.origin || 'http://localhost:5173'}/dashboard?success=true`,
-      cancel_url: `${req.headers.origin || 'http://localhost:5173'}/pricing?canceled=true`,
-    });
-
-    res.json({ id: session.id });
-  } catch (error) {
-    console.error("Stripe Error:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   
   app.use(express.static(path.join(__dirname, '../frontend/dist')));

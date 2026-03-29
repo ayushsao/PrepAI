@@ -13,8 +13,6 @@ import {
   Star
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { loadStripe } from '@stripe/stripe-js';
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
@@ -26,45 +24,12 @@ const Pricing = () => {
       return;
     }
     if (plan.price === 'Custom') {
-      window.location.href = 'mailto:sales@prepai.com'; 
+      window.location.href = 'mailto:sales@prepai.com';
       return;
     }
 
-    try {
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx');
-      if (!stripe) {
-        alert('Stripe SDK failed to load.');
-        return;
-      }
-
-      const amount = parseInt(plan.price) * 100;
-
-      // Create order via our backend
-      const result = await axios.post('http://localhost:3001/api/create-checkout-session', {
-        amount: amount,
-        productName: plan.name,
-        billingCycle: billingCycle,
-        currency: 'inr' 
-      });
-
-      if (!result.data || !result.data.id) {
-        alert('Server error. Failed to create checkout session.');
-        return;
-      }
-
-      // Redirect to Stripe Checkout
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: result.data.id,
-      });
-
-      if (error) {
-        alert(`Payment initialization failed: ${error.message}`);
-      }
-
-    } catch (error) {
-       console.error("Payment error:", error);
-       alert("Failed to initialize payment. Check server logs!");
-    }
+    // Default bypass
+    navigate('/dashboard');
   };
 
   const plans = [
