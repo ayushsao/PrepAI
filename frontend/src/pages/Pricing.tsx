@@ -12,10 +12,60 @@ import {
   Trophy,
   Star
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { loadStripe } from '@stripe/stripe-js';
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
+  const navigate = useNavigate();
+
+  const handlePayment = async (plan: any) => {
+    if (plan.price === '0') {
+      navigate('/dashboard');
+      return;
+    }
+    if (plan.price === 'Custom') {
+      window.location.href = 'mailto:sales@prepai.com'; 
+      return;
+    }
+
+    try {
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx');
+      if (!stripe) {
+        alert('Stripe SDK failed to load.');
+        return;
+      }
+
+      const amount = parseInt(plan.price) * 100;
+
+      // Create order via our backend
+      const result = await axios.post('http://localhost:3001/api/create-checkout-session', {
+        amount: amount,
+        productName: plan.name,
+        billingCycle: billingCycle,
+        currency: 'inr' 
+      });
+
+      if (!result.data || !result.data.id) {
+        alert('Server error. Failed to create checkout session.');
+        return;
+      }
+
+      // Redirect to Stripe Checkout
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: result.data.id,
+      });
+
+      if (error) {
+        alert(`Payment initialization failed: ${error.message}`);
+      }
+
+    } catch (error) {
+       console.error("Payment error:", error);
+       alert("Failed to initialize payment. Check server logs!");
+    }
+  };
 
   const plans = [
     {
@@ -149,12 +199,14 @@ const Pricing = () => {
                  ))}
               </div>
 
-              <Link to="/dashboard" className={`w-full py-5 rounded-[24px] font-black text-xs uppercase tracking-widest transition-all relative overflow-hidden group/btn flex items-center justify-center ${plan.highlight ? 'bg-brand-cyan text-brand-dark shadow-[0_10px_30px_rgba(0,255,255,0.2)]' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10 hover:text-white'}`}>
+              <button 
+                 onClick={() => handlePayment(plan)}
+                 className={`w-full py-5 rounded-[24px] font-black text-xs uppercase tracking-widest transition-all relative overflow-hidden group/btn flex items-center justify-center ${plan.highlight ? 'bg-brand-cyan text-brand-dark shadow-[0_10px_30px_rgba(0,255,255,0.2)]' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10 hover:text-white'}`}>
                  <span className="relative z-10 flex items-center justify-center gap-3">
                    {plan.cta}
                    <ArrowRight size={18} strokeWidth={3} className="transition-transform group-hover/btn:translate-x-1" />
                  </span>
-              </Link>
+              </button>
             </motion.div>
           ))}
         </div>
