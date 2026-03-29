@@ -7,6 +7,10 @@ import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import multer from 'multer';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const pdfParseCommonJS = require('pdf-parse');
 
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
@@ -57,6 +61,67 @@ app.use('/api/auth', authRoutes);
 
 // --- AI Interview Endpoints ---
 
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post('/api/upload-resume', protect, upload.single('resume'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No resume file uploaded' });
+    }
+
+    if (req.file.mimetype !== 'application/pdf') {
+      return res.status(400).json({ error: 'Please upload a PDF file' });
+    }
+
+    const pdfData = await pdfParseCommonJS(req.file.buffer);
+    const resumeText = pdfData.text;
+
+    if (!resumeText || resumeText.trim().length === 0) {
+      return res.status(400).json({ error: 'Could not extract text from the PDF' });
+    }
+
+    const systemPrompt = `You are an expert technical interviewer. Analyze the provided resume text. 
+1. Extract the top 3-5 key technical skills.
+2. Formulate exactly ONE introductory interview question based on the candidate's specific experience and skills.
+3. CRITICAL: The introductory question must be extremely concise, conversational, and natural. Do not exceed 2 short sentences. Do not list multiple questions at once. 
+Respond ONLY in JSON format like this:
+{
+  "skills": ["skill1", "skill2"],
+  "question": "Short, sweet interview question here..."
+}`;
+
+    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `Here is the candidate's resume text:\n\n${resumeText.substring(0, 4000)}` }
+        ],
+        temperature: 0.7,
+        response_format: { type: "json_object" }
+      })
+    });
+
+    const data = await groqResponse.json();
+    const result = JSON.parse(data.choices?.[0]?.message?.content || '{}');
+
+    res.json({
+      success: true,
+      skills: result.skills || [],
+      question: result.question || "Could you walk me through your background and projects?",
+      resumeText: resumeText.substring(0, 500) // snippet for frontend preview
+    });
+  } catch (error) {
+    console.error('Error processing resume:', error);
+    res.status(500).json({ error: 'Failed to process resume' });
+  }
+});
+
 // Endpoint to handle the interview chat session
 app.post('/api/interview', async (req, res) => {
   try {
@@ -68,7 +133,7 @@ Rules for you:
 1. Do not break character. Be polite but extremely analytical, highly demanding, and probing. No hand-holding.
 2. Ask deeply technical, complex questions. If the candidate gives a superficial answer, aggressively drill down into edge cases, scalability, big-O complexity, system design tradeoffs, or low-level implementation details.
 3. Call out flaws, logical errors, or incomplete answers objectively and directly.
-4. Keep responses concisely conversational (1-3 sentences max). Only ask ONE specific follow-up question per turn to keep pressure high.
+4. CRITICAL RULE: Keep responses EXTREMELY short and conversational (1 to 2 short sentences MAX). NEVER bundle multiple questions together. Ask exactly ONE specific follow-up question per turn to keep the flow feeling like a real human conversation.
 5. If the user struggles, do not trivially give the answer; ask a difficult, leading question that forces them to justify their engineering decisions.`;
     const groqMessages = [
       { role: 'system', content: systemInstruction },

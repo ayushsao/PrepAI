@@ -28,11 +28,14 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const InterviewSession = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [micOn, setMicOn] = useState(true);
   const [videoOn, setVideoOn] = useState(true);
   const [timeLeft, setTimeLeft] = useState(150);
   const [activeTone, setActiveTone] = useState<'professional' | 'urgent' | 'analytic'>('professional');
+  
+  const [resumeUploaded, setResumeUploaded] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState<{role: string, content: string}[]>([
@@ -47,6 +50,15 @@ const InterviewSession = () => {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const recognitionRef = useRef<any>(null);
+
+  // Robust state tracking for speech recognition auto-restart
+  const isAiSpeakingRef = useRef(false);
+  const isAiProcessingRef = useRef(false);
+  const hasStartedRef = useRef(false);
+
+  useEffect(() => { isAiSpeakingRef.current = isAiSpeaking; }, [isAiSpeaking]);
+  useEffect(() => { isAiProcessingRef.current = isAiProcessing; }, [isAiProcessing]);
+  useEffect(() => { hasStartedRef.current = hasStarted; }, [hasStarted]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -120,17 +132,17 @@ const InterviewSession = () => {
         }
       };
 
-        // Attempt to auto-restart recognition if it stops unexpectedly (Chrome often kills it after silence)
-        recognition.onend = () => {
-          if (document.getElementById('autoSubmitBtn') && !document.getElementById('autoSubmitBtn')?.hasAttribute('disabled')) {
-            // we probably want to restart it if they haven't submitted yet
-            try {
-              recognition.start();
-            } catch (err) {}
-          }
-        };
+      // Attempt to auto-restart recognition if it stops unexpectedly (Chrome often kills it after silence)
+      recognition.onend = () => {
+        // ALWAYS restart listening UNLESS the AI is currently speaking or processing our answer!
+        if (hasStartedRef.current && !isAiProcessingRef.current && !isAiSpeakingRef.current) {
+          try {
+            recognition.start();
+          } catch (err) {}
+        }
+      };
 
-        recognitionRef.current = recognition;
+      recognitionRef.current = recognition;
       }
     }, []);
 
@@ -149,13 +161,14 @@ const InterviewSession = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Hands-free auto-submit mechanism: detect silence for 3.5s and trigger submit
+  // Hands-free auto-submit mechanism: detect silence and trigger submit
   useEffect(() => {
     let silenceTimer: NodeJS.Timeout;
-    if (transcript.trim().length > 10 && hasStarted && !isAiProcessing && !isAiSpeaking) {
+    // Lowered threshold to > 3 characters so short answers trigger it too
+    if (transcript.trim().length > 3 && hasStarted && !isAiProcessing && !isAiSpeaking) {
       silenceTimer = setTimeout(() => {
         document.getElementById('autoSubmitBtn')?.click();
-      }, 3500); // 3.5 seconds of silence
+      }, 1500); // 1.5s for faster, snappy responses
     }
     return () => clearTimeout(silenceTimer);
   }, [transcript, hasStarted, isAiProcessing, isAiSpeaking]);
@@ -175,20 +188,43 @@ const InterviewSession = () => {
     const textToSpeak = text.replace(/[*#_`]/g, '');
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     
-    // Force browser to use an English voice
+    // Attempt to find the most natural, human-sounding "sweet" voice (Microsoft/Google female voices usually)
     const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(v => (v.lang.includes('en') || v.lang.includes('EN')) && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Zira'))) || voices.find(v => v.lang.includes('en'));
     
-    if (englishVoice) {
-      utterance.voice = englishVoice;
+    const preferredVoices = [
+      "Microsoft Ana Online (Natural) - English (United States)",
+      "Microsoft Michelle Online (Natural) - English (United States)",
+      "Microsoft Jenny Online (Natural) - English (United States)",
+      "Google US English",
+      "Samantha",
+      "Victoria",
+      "Tessa" 
+    ];
+
+    let selectedVoice = voices.find(v => preferredVoices.some(pv => v.name.includes(pv)));
+    
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => 
+        (v.lang === 'en-US' || v.lang === 'en-GB') && 
+        (v.name.includes('Female') || v.name.includes('Google') || v.name.includes('Zira'))) 
+        || voices.find(v => v.lang.includes('en'));
+    }
+
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
     }
     
     utterance.lang = "en-US";
-    utterance.rate = 1.0;
+    
+    // Maximizing sweetness: Higher pitch, slightly slower rate to sound thoughtful and gentle
+    utterance.rate = 0.98; // Slightly slowed down from 1.05 so she doesn't sound rushed
+    utterance.pitch = 1.4; // Pushed higher to make it sound cuter and softer
     utterance.volume = 1;
-    utterance.pitch = 0.85;
 
-    utterance.onstart = () => console.log("Started speaking:", textToSpeak);
+    utterance.onstart = () => {
+      console.log("Started speaking:", textToSpeak);
+      setIsAiSpeaking(true);
+    };
     
     utterance.onend = () => {
       console.log("Finished speaking.");
@@ -207,10 +243,47 @@ const InterviewSession = () => {
       setIsAiSpeaking(false);
     };
 
+    // Store utterance globally to prevent Chrome from garbage collecting it before onend fires!
+    (window as any)._currUtterance = utterance;
+
     window.speechSynthesis.speak(utterance);
-    
+
     // Workaround for Chrome bug where long texts randomly stop:
     // pause/resume every 14 seconds (though these are short sentences anyway)
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('resume', file);
+
+    try {
+      const API_BASE = (import.meta.env.PROD ? '/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api')).replace(/\/$/, '');
+      const response = await fetch(`${API_BASE}/upload-resume`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token || localStorage.getItem('prepai_token')}`
+        },
+        body: formData,
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setMessages([{ role: 'assistant', content: data.question }]);
+        setResumeUploaded(true);
+        console.log("Resume skills:", data.skills);
+      } else {
+        alert("Upload failed: " + (data.error || data.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert("Failed to parse resume.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleStart = () => {
@@ -351,9 +424,29 @@ const InterviewSession = () => {
                </div>
             </div>
 
-            {!hasStarted && (
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-10">
-                <button 
+            {!hasStarted && !resumeUploaded && (
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-8 text-center">
+                <h3 className="text-2xl font-bold mb-4">Targeted AI Interview</h3>
+                <p className="text-white/60 mb-6 max-w-md">Upload your resume. The AI Architect will analyze your experiences and generate personalized technical questions.</p>
+                <div className="relative">
+                  <input 
+                    type="file" 
+                    accept="application/pdf"
+                    onChange={handleFileUpload}
+                    disabled={isUploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className={`flex items-center gap-3 px-8 py-4 ${isUploading ? 'bg-gray-600' : 'bg-brand-cyan'} text-brand-dark rounded-full font-bold text-sm shadow-[0_0_40px_rgba(34,211,238,0.3)] transition-transform`}>
+                    {isUploading ? 'Analyzing Resume...' : 'Upload PDF Resume'}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!hasStarted && resumeUploaded && (
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+                <p className="text-brand-cyan mb-6 font-bold tracking-wider uppercase text-sm">Resume Analyzed successfully</p>
+                <button
                   onClick={handleStart}
                   className="flex items-center gap-3 px-8 py-4 bg-brand-cyan text-brand-dark rounded-full font-bold text-sm shadow-[0_0_40px_rgba(34,211,238,0.3)] hover:scale-105 transition-transform"
                 >
@@ -428,20 +521,48 @@ const InterviewSession = () => {
       </div>
 
       <footer className="h-20 md:h-24 bg-[#0a0b0d] border-t border-white/[0.03] flex items-center justify-center md:justify-between px-6 md:px-10 shrink-0 relative z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center gap-4 md:gap-6">
-          <button 
+        
+        {/* Left: Time (keeps center controls perfectly centered) */}
+        <div className="hidden md:flex items-center gap-3 text-white/50 w-40">
+          <Clock size={16} className="text-brand-cyan/70" />
+          <span className="text-sm font-bold tracking-wider font-mono">{formatTime(timeLeft)}</span>
+        </div>
+
+        {/* Center: Main Controls */}
+        <div className="flex items-center justify-center gap-4 md:gap-6">
+          <button
             onClick={() => setMicOn(!micOn)}
-            className={`w-12 h-12 md:w-14 md:h-14 rounded-full md:rounded-2xl flex items-center justify-center transition-all ${micOn ? 'bg-white/5 hover:bg-white/10 text-white border border-white/5' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}
+            className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all ${micOn ? 'bg-white/10 hover:bg-white/20 text-white shadow-sm' : 'bg-red-500/20 text-red-500 border border-red-500/30'}`}
+            title="Toggle Microphone"
           >
-            {micOn ? <Mic size={20} /> : <MicOff size={20} />}
+            {micOn ? <Mic size={22} /> : <MicOff size={22} />}
           </button>
-          
-          <button 
+
+          <button
             onClick={() => setVideoOn(!videoOn)}
-            className={`w-12 h-12 md:w-14 md:h-14 rounded-full md:rounded-2xl flex items-center justify-center transition-all ${videoOn ? 'bg-white/5 hover:bg-white/10 text-white border border-white/5' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}
+            className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all ${videoOn ? 'bg-white/10 hover:bg-white/20 text-white shadow-sm' : 'bg-red-500/20 text-red-500 border border-red-500/30'}`}
+            title="Toggle Camera"
           >
-            {videoOn ? <Video size={20} /> : <VideoOff size={20} />}
+            {videoOn ? <Video size={22} /> : <VideoOff size={22} />}
           </button>
+
+          {hasStarted && (
+            <button
+               onClick={() => window.location.href = '/dashboard'}
+               className="h-12 md:h-14 px-6 md:px-8 bg-red-500/90 hover:bg-red-500 text-white rounded-full flex items-center justify-center gap-2 font-bold transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] md:ml-4"
+               title="End Interview"
+            >
+               <PhoneOff size={20} />
+               <span className="hidden md:inline">End Session</span>
+            </button>
+          )}
+        </div>
+
+        {/* Right: Settings (balances flex-between) */}
+        <div className="hidden md:flex items-center justify-end w-40">
+           <button className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors">
+              <Settings size={18} />
+           </button>
         </div>
       </footer>
     </div>
