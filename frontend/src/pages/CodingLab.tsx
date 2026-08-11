@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Editor as MonacoEditor, loader } from '@monaco-editor/react';
+import { apiUrl } from '../lib/api';
 
 // Use default jsDelivr CDN for Monaco Editor by omitting manual config
 // loader.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.46.0/min/vs' } });
@@ -319,8 +320,7 @@ const CodingLab = () => {
     if (isAskingHint) return;
     setIsAskingHint(true);
     try {
-      const API_BASE = (import.meta.env.PROD ? '/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api')).replace(/\/$/, '');
-      const resp = await fetch(`${API_BASE}/coding-hint`, {
+      const resp = await fetch(apiUrl('/coding-hint'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -367,8 +367,7 @@ const CodingLab = () => {
     addLog("Evaluating solution using AI...");
 
     try {
-      const API_BASE = (import.meta.env.PROD ? '/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api')).replace(/\/$/, '');
-      const response = await fetch(`${API_BASE}/evaluate-code`, {
+      const response = await fetch(apiUrl('/evaluate-code'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../hooks/useAuth';
+import { apiUrl } from '../lib/api';
 
 const Analytics = () => {
   const { user, token } = useAuth();
@@ -22,8 +23,7 @@ const Analytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const API_BASE = (import.meta.env.PROD ? '/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api')).replace(/\/$/, '');
-        const res = await fetch(`${API_BASE}/analytics`, {
+        const res = await fetch(apiUrl('/analytics'), {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

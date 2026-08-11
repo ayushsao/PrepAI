@@ -5,66 +5,82 @@ import { GoogleGenAI } from '@google/genai';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import multer from 'multer';
+import jwt from 'jsonwebtoken';
 import { createRequire } from 'module';
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
+
+import connectDB from '../config/db.js';
+import { notFound, errorHandler } from '../middleware/errorMiddleware.js';
+import User from '../models/User.js';
+
 const require = createRequire(import.meta.url);
 const pdfParseCommonJS = require('pdf-parse');
 
-import connectDB from './config/db.js';
-import authRoutes from './routes/authRoutes.js';
-import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import { protect } from './middleware/authMiddleware.js';
-import User from './models/User.js';
-
 dotenv.config();
-
-// Connect to database
 connectDB();
 
 const app = express();
-app.set('trust proxy', 1); // Trust first proxy for express-rate-limit
+app.set('trust proxy', 1);
 
-const port = process.env.PORT || 3001;
-
-// Initialize Google Gen AI
+const port = process.env.INTERVIEW_SERVICE_PORT || 3003;
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// Middleware
-app.use(helmet({
-  crossOriginResourcePolicy: false,
-  crossOriginOpenerPolicy: false,
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'", "*", "'unsafe-inline'", "'unsafe-eval'", "data:", "blob:"],
-      scriptSrc: ["'self'", "*", "'unsafe-inline'", "'unsafe-eval'"],
-      scriptSrcElem: ["'self'", "*", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
-      connectSrc: ["'self'", "*", "'unsafe-inline'", "'unsafe-eval'", "data:", "blob:"],
-      workerSrc: ["'self'", "*", "blob:"],
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginOpenerPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'", '*', "'unsafe-inline'", "'unsafe-eval'", 'data:', 'blob:'],
+        scriptSrc: ["'self'", '*', "'unsafe-inline'", "'unsafe-eval'"],
+        scriptSrcElem: ["'self'", '*', "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://unpkg.com'],
+        connectSrc: ["'self'", '*', "'unsafe-inline'", "'unsafe-eval'", 'data:', 'blob:'],
+        workerSrc: ["'self'", '*', 'blob:'],
+      },
     },
-  },
-}));
+  })
+);
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(mongoSanitize());
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-});
-app.use('/api', limiter);
+app.use(
+  '/api',
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+  })
+);
 
-// Wait to define root route later for production serving
+const protect = async (req, res, next) => {
+  let token;
 
-// Auth Routes
-app.use('/api/auth', authRoutes);
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'prepai_secret_2026');
+      const user = await User.findById(decoded.id).select('-password');
 
-// --- AI Interview Endpoints ---
+      if (!user) {
+        return res.status(401).json({ message: 'Not authorized, user not found' });
+      }
+
+      req.user = user;
+      return next();
+    } catch (error) {
+      return res.status(401).json({ message: 'Not authorized, token failed' });
+    }
+  }
+
+  return res.status(401).json({ message: 'Not authorized, no token' });
+};
 
 const upload = multer({ storage: multer.memoryStorage() });
+
+app.get('/health', (_req, res) => {
+  res.json({ service: 'interview-service', status: 'ok' });
+});
 
 app.post('/api/upload-resume', protect, upload.single('resume'), async (req, res) => {
   try {
@@ -83,10 +99,10 @@ app.post('/api/upload-resume', protect, upload.single('resume'), async (req, res
       return res.status(400).json({ error: 'Could not extract text from the PDF' });
     }
 
-    const systemPrompt = `You are an expert technical interviewer. Analyze the provided resume text. 
+    const systemPrompt = `You are an expert technical interviewer. Analyze the provided resume text.
 1. Extract the top 3-5 key technical skills.
 2. Formulate exactly ONE introductory interview question based on the candidate's specific experience and skills.
-3. CRITICAL: The introductory question must be extremely concise, conversational, and natural. Do not exceed 2 short sentences. Do not list multiple questions at once. 
+3. CRITICAL: The introductory question must be extremely concise, conversational, and natural. Do not exceed 2 short sentences. Do not list multiple questions at once.
 Respond ONLY in JSON format like this:
 {
   "skills": ["skill1", "skill2"],
@@ -96,18 +112,18 @@ Respond ONLY in JSON format like this:
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Here is the candidate's resume text:\n\n${resumeText.substring(0, 4000)}` }
+          { role: 'user', content: `Here is the candidate's resume text:\n\n${resumeText.substring(0, 4000)}` },
         ],
         temperature: 0.7,
-        response_format: { type: "json_object" }
-      })
+        response_format: { type: 'json_object' },
+      }),
     });
 
     const data = await groqResponse.json();
@@ -116,8 +132,8 @@ Respond ONLY in JSON format like this:
     res.json({
       success: true,
       skills: result.skills || [],
-      question: result.question || "Could you walk me through your background and projects?",
-      resumeText: resumeText.substring(0, 500) // snippet for frontend preview
+      question: result.question || 'Could you walk me through your background and projects?',
+      resumeText: resumeText.substring(0, 500),
     });
   } catch (error) {
     console.error('Error processing resume:', error);
@@ -125,43 +141,42 @@ Respond ONLY in JSON format like this:
   }
 });
 
-// Endpoint to handle the interview chat session
 app.post('/api/interview', async (req, res) => {
   try {
     const { messages, context } = req.body;
 
-    // Construct system prompt for the AI interviewer
-    const systemInstruction = `You are a strict, highly rigorous Principal Staff Engineer conducting a final-round ${context?.type || 'Technical'} interview for a ${context?.role || 'Software Engineer'} role at a top-tier tech company.
-Rules for you:
-1. Do not break character. Be polite but extremely analytical, highly demanding, and probing. No hand-holding.
-2. Ask deeply technical, complex questions. If the candidate gives a superficial answer, aggressively drill down into edge cases, scalability, big-O complexity, system design tradeoffs, or low-level implementation details.
-3. Call out flaws, logical errors, or incomplete answers objectively and directly.
-4. CRITICAL RULE: Keep responses EXTREMELY short and conversational (1 to 2 short sentences MAX). NEVER bundle multiple questions together. Ask exactly ONE specific follow-up question per turn to keep the flow feeling like a real human conversation.
-5. If the user struggles, do not trivially give the answer; ask a difficult, leading question that forces them to justify their engineering decisions.`;
+    // Use phase-specific hint from frontend, or fall back to friendly default
+    const phaseHint = context?.systemHint || null;
+
+    const systemInstruction = phaseHint
+      ? `${phaseHint}\n\nGLOBAL RULES:\n- Ask exactly ONE question per response. Never bundle multiple questions.\n- Keep responses SHORT (2-3 sentences max). Be warm, encouraging, and professional.\n- Briefly acknowledge the candidate's previous answer before asking the next question.\n- Role: Interviewer for a ${context?.role || 'Software Engineer'} position.`
+      : `You are a friendly, professional interviewer for a ${context?.role || 'Software Engineer'} role. Ask ONE question at a time. Be encouraging and conversational. Keep responses to 2-3 sentences max.`;
+
     const groqMessages = [
       { role: 'system', content: systemInstruction },
-      ...messages.map(m => ({
+      ...messages.map((m) => ({
         role: m.role === 'user' ? 'user' : 'assistant',
-        content: m.content
-      }))
+        content: m.content,
+      })),
     ];
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: groqMessages,
         temperature: 0.7,
         max_tokens: 200,
-      })
+      }),
     });
 
     const data = await response.json();
-    const aiMessage = data.choices?.[0]?.message?.content || "I'm sorry, could you repeat that? I didn't quite catch it.";
+    const aiMessage =
+      data.choices?.[0]?.message?.content || "I'm sorry, could you repeat that? I didn't quite catch it.";
 
     res.json({ message: aiMessage });
   } catch (error) {
@@ -170,7 +185,6 @@ Rules for you:
   }
 });
 
-// Endpoint to handle AI Voice TTS (ElevenLabs / Fallback)
 app.post('/api/tts', async (req, res) => {
   try {
     const { text } = req.body;
@@ -181,15 +195,11 @@ app.post('/api/tts', async (req, res) => {
 
     const client = new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });
 
-    // We will stream back the raw audio data
-    const audioStream = await client.textToSpeech.convert(
-      "EXAVITQu4vr4xnSDxMaL", // Sarah / professional voice
-      {
-        text: text,
-        model_id: "eleven_multilingual_v2",
-        output_format: "mp3_44100_128"
-      }
-    );
+    const audioStream = await client.textToSpeech.convert('EXAVITQu4vr4xnSDxMaL', {
+      text,
+      model_id: 'eleven_multilingual_v2',
+      output_format: 'mp3_44100_128',
+    });
 
     res.set({
       'Content-Type': 'audio/mpeg',
@@ -203,7 +213,6 @@ app.post('/api/tts', async (req, res) => {
   }
 });
 
-// Endpoint to transcribe user voice via Groq Whisper API
 app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No audio file uploaded' });
@@ -213,16 +222,14 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
     formData.append('file', blob, 'audio.webm');
     formData.append('model', 'whisper-large-v3-turbo');
     formData.append('response_format', 'json');
-    formData.append('language', 'en'); // Force English or make dynamic
+    formData.append('language', 'en');
 
     const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
-        // Do not set Content-Type header manually when using FormData in fetch, 
-        // it gets generated automatically with the boundary
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
-      body: formData
+      body: formData,
     });
 
     const data = await response.json();
@@ -237,11 +244,12 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
   }
 });
 
-// Endpoint to evaluate an entire interview transcript
 app.post('/api/evaluate', async (req, res) => {
   try {
     const { messages, context } = req.body;
-    const transcript = messages.map(m => `${m.role === 'user' ? 'Candidate' : 'Interviewer'}: ${m.content}`).join('\n');
+    const transcript = messages
+      .map((m) => `${m.role === 'user' ? 'Candidate' : 'Interviewer'}: ${m.content}`)
+      .join('\n');
 
     const systemInstruction = `You are a strict, incredibly high-bar Principal Staff Engineer evaluating a candidate's final technical round for a ${context?.role || 'Senior Software Engineer'} role.
 Review the transcript strictly. Provide a brutal, highly analytical JSON evaluation. Include:
@@ -259,10 +267,10 @@ Return only valid JSON.`;
       model: 'gemini-2.0-flash',
       contents: [{ role: 'user', parts: [{ text: transcript }] }],
       config: {
-        systemInstruction: systemInstruction,
+        systemInstruction,
         temperature: 0.2,
-        responseMimeType: "application/json",
-      }
+        responseMimeType: 'application/json',
+      },
     });
 
     const assessment = JSON.parse(response.text);
@@ -273,48 +281,48 @@ Return only valid JSON.`;
   }
 });
 
-// Endpoint for Coding Lab hints
 app.post('/api/coding-hint', async (req, res) => {
   try {
-    const { problem, code, language, context } = req.body;
+    const { problem, code, language } = req.body;
 
     const systemInstruction = `You are a Senior Software Architect helping a candidate with a coding problem: ${problem}.
 Language: ${language}.
 Current Code: ${code}.
-The candidate is asking for a hint. Provide a VERY concise hint (1-2 sentences). 
+The candidate is asking for a hint. Provide a VERY concise hint (1-2 sentences).
 Focus on the algorithm or identifying a logic error. Do NOT provide the full solution code.
 Hint should be encouraging and architectural.`;
 
     const groqMessages = [
       { role: 'system', content: systemInstruction },
-      { role: 'user', content: "Provide a subtle hint to help me proceed without giving the answer away." }
+      { role: 'user', content: 'Provide a subtle hint to help me proceed without giving the answer away.' },
     ];
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: groqMessages,
         temperature: 0.5,
         max_tokens: 150,
-      })
+      }),
     });
 
     const data = await groqResponse.json();
-    const hintText = data.choices?.[0]?.message?.content || "Focus on the algorithmic logic and break the problem down into smaller steps.";
+    const hintText =
+      data.choices?.[0]?.message?.content ||
+      'Focus on the algorithmic logic and break the problem down into smaller steps.';
 
     res.json({ hint: hintText });
   } catch (error) {
     console.error('Error generating coding hint:', error);
-    res.status(500).json({ hint: "Focus on the palindromic expansion logic around each center character." });
+    res.status(500).json({ hint: 'Focus on the palindromic expansion logic around each center character.' });
   }
 });
 
-// Endpoint for Code Evaluation
 app.post('/api/evaluate-code', async (req, res) => {
   try {
     const { problem, code, language, description } = req.body;
@@ -335,26 +343,25 @@ Return a STRICT JSON object in the following format (NO MARKDOWN WRAPPERS, NO BA
 
     const groqMessages = [
       { role: 'system', content: systemInstruction },
-      { role: 'user', content: "Evaluate my code and return JSON." }
+      { role: 'user', content: 'Evaluate my code and return JSON.' },
     ];
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: groqMessages,
         temperature: 0.1,
-      })
+      }),
     });
 
     const data = await groqResponse.json();
     let textResponse = data.choices?.[0]?.message?.content || '{"passed": false, "feedback": "Evaluation failed to generate"}';
 
-    // Better JSON extraction from markdown or chatty AI responses
     const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       textResponse = jsonMatch[0];
@@ -382,20 +389,26 @@ app.post('/api/save-session', protect, async (req, res) => {
     if (!user.analytics) user.analytics = {};
     if (!user.analytics.recentSessions) user.analytics.recentSessions = [];
 
+    // Add new session to top of list
     user.analytics.recentSessions.unshift({
       role: role,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
       score: score,
       fillers: fillers,
       questions: questions,
     });
 
-    if (user.analytics.recentSessions.length > 5) user.analytics.recentSessions.pop();
+    // Keep only last 5 sessions
+    if (user.analytics.recentSessions.length > 5) {
+      user.analytics.recentSessions.pop();
+    }
 
+    // Boost readiness slightly
     if (typeof user.analytics.readiness !== 'number') user.analytics.readiness = 12;
     user.analytics.readiness = Math.min(100, user.analytics.readiness + 5);
     user.analytics.streak = (user.analytics.streak || 0) + 1;
 
+    // Slight progression boost for chart
     if (user.analytics.progressionData && user.analytics.progressionData.baselinePoints) {
       const pts = user.analytics.progressionData.baselinePoints;
       const lastPt = pts[pts.length - 1];
@@ -411,7 +424,6 @@ app.post('/api/save-session', protect, async (req, res) => {
   }
 });
 
-// Analytics Endpoint (Protected - Returns real user data)
 app.get('/api/analytics', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -420,36 +432,35 @@ app.get('/api/analytics', protect, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // If user hasn't generated analytics yet, prepare dynamic baseline ones
     if (!user.analytics || Object.keys(user.analytics).length === 0) {
       user.analytics = {
-        readiness: 12, // Starting low for a real fresh user
+        readiness: 12,
         breakdown: {
           technical: 15,
           communication: 10,
-          behavioral: 11
+          behavioral: 11,
         },
-        streak: 1, // First day
+        streak: 1,
         metrics: {
           confidence: { value: '45%', change: '+1%' },
           technical: { value: '2.5/10', change: '+0.1' },
           content: { value: 'Needs Work', change: 'Starting' },
-          filler: { value: '8.2%', change: '-0.1%' }
+          filler: { value: '8.2%', change: '-0.1%' },
         },
         skillProficiency: [
           { skill: user.targetRole || 'Software Engineering', score: 18 },
           { skill: 'System Design', score: 12 },
           { skill: 'Behavioral Clarity', score: 15 },
           { skill: 'Problem Solving', score: 20 },
-          { skill: 'Data Structures', score: 17 }
+          { skill: 'Data Structures', score: 17 },
         ],
         progressionData: {
-          targetPoints: [50, 55, 65, 80, 95], // Climbing up to their goals
+          targetPoints: [50, 55, 65, 80, 95],
           baselinePoints: [10, 15, 12, 10, 12],
-          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
+          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
         },
         aiInsight: `AI Insight: Welcome ${user.name.split(' ')[0]}. Focus on the basics of ${user.targetRole || 'development'} to improve your baseline scores.`,
-        recentSessions: []
+        recentSessions: [],
       };
       await user.save();
     }
@@ -461,28 +472,9 @@ app.get('/api/analytics', protect, async (req, res) => {
   }
 });
 
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-  app.get('*', (req, res) => {
-    if (req.path.match(/\.(js|css|json|map|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
-      return res.status(404).send('Not Found');
-    }
-    res.sendFile(path.resolve(__dirname, '../frontend', 'dist', 'index.html'));
-  });
-} else {
-  app.get('/', (req, res) => {
-    res.send('PrepAI Backend API is running... (Development Mode)');
-  });
-}
-
-// Error Handling Middleware
 app.use(notFound);
 app.use(errorHandler);
 
 app.listen(port, () => {
-  console.log(`Backend Server running on port ${port}`);
+  console.log(`Interview service running on port ${port}`);
 });

@@ -1,4 +1,4 @@
-import { 
+import {
   Play,
   MessageSquare,
   BarChart3,
@@ -28,11 +28,11 @@ const Hero = () => (
     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
       <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-brand-cyan/10 rounded-full blur-[150px]" />
     </div>
-    
+
     <div className="max-w-7xl mx-auto w-full relative z-10 grid md:grid-cols-2 gap-16 items-center">
       {/* Left: Headlines + CTA */}
       <div>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="inline-flex items-center gap-2 px-3 py-1 border border-white/10 bg-white/5 mb-8"
@@ -40,8 +40,8 @@ const Hero = () => (
           <div className="w-2 h-2 rounded-full bg-brand-cyan animate-pulse" />
           <span className="text-[10px] uppercase tracking-widest font-bold text-brand-cyan">Next-Gen Interview Intelligence</span>
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -49,32 +49,32 @@ const Hero = () => (
         >
           <div className="flex flex-wrap gap-1 md:gap-2">
             {["MASTER", "EVERY", "INTERVIEW"].map((word, i) => (
-               <motion.div 
-                 key={word}
-                 initial={{ x: -20, rotate: -2 }}
-                 animate={{ x: 0, rotate: i % 2 === 0 ? 1 : -1 }}
-                 className="bg-white text-black px-3 py-1 md:px-6 md:py-3 shadow-[4px_4px_0px_#22d3ee]"
-               >
-                  <h1 className="text-3xl md:text-6xl font-heading leading-none m-0">{word}</h1>
-               </motion.div>
+              <motion.div
+                key={word}
+                initial={{ x: -20, rotate: -2 }}
+                animate={{ x: 0, rotate: i % 2 === 0 ? 1 : -1 }}
+                className="bg-white text-black px-3 py-1 md:px-6 md:py-3 shadow-[4px_4px_0px_#22d3ee]"
+              >
+                <h1 className="text-3xl md:text-6xl font-heading leading-none m-0">{word}</h1>
+              </motion.div>
             ))}
           </div>
           <div className="bg-brand-cyan text-brand-dark px-3 py-1 md:px-6 md:py-3 -rotate-1 shadow-[4px_4px_0px_white] self-start">
-             <h1 className="text-3xl md:text-6xl font-heading leading-none m-0">WITH AI.</h1>
+            <h1 className="text-3xl md:text-6xl font-heading leading-none m-0">WITH AI.</h1>
           </div>
         </motion.div>
-        
-        <motion.p 
+
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="text-base md:text-lg text-white/50 mb-10 leading-relaxed max-w-lg"
         >
-          The most advanced mock interview system for HR, Technical, and Behavioral rounds. 
+          The most advanced mock interview system for HR, Technical, and Behavioral rounds.
           Record video, solve code, and get instant feedback.
         </motion.p>
-        
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -121,7 +121,7 @@ const Hero = () => (
 const SessionPreview = () => (
   <section className="px-6 py-20">
     <div className="max-w-6xl mx-auto">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
@@ -129,10 +129,10 @@ const SessionPreview = () => (
       >
         <div className="h-12 bg-white/5 border-b border-white/5 flex items-center px-6 justify-between">
           <div className="flex items-center gap-2">
-             <div className="w-4 h-4 bg-brand-cyan rounded flex items-center justify-center">
-               <Layout className="w-2.5 h-2.5 text-brand-dark" />
-             </div>
-             <span className="text-xs font-bold tracking-tight">PrepAI</span>
+            <div className="w-4 h-4 bg-brand-cyan rounded flex items-center justify-center">
+              <Layout className="w-2.5 h-2.5 text-brand-dark" />
+            </div>
+            <span className="text-xs font-bold tracking-tight">PrepAI</span>
           </div>
           <div className="text-[10px] uppercase tracking-widest font-bold text-white/40">
             Interview Session #4802 • Active
@@ -143,7 +143,7 @@ const SessionPreview = () => (
             <div className="w-2 h-2 rounded-full bg-white/20" />
           </div>
         </div>
-        
+
         <div className="grid lg:grid-cols-3">
           <div className="lg:col-span-2 p-1">
             <div className="aspect-video relative rounded-2xl overflow-hidden bg-[#0c0e12] flex items-center justify-center">
@@ -158,7 +158,7 @@ const SessionPreview = () => (
               </div>
             </div>
           </div>
-          
+
           <div className="p-8 border-l border-white/5 flex flex-col gap-8">
             <div>
               <h4 className="text-[10px] uppercase tracking-widest font-bold text-brand-cyan mb-3">Current Question</h4>
@@ -166,19 +166,19 @@ const SessionPreview = () => (
                 "Tell me about a time you had to manage a conflict within a cross-functional team."
               </p>
             </div>
-            
+
             <div className="p-4 rounded-xl bg-brand-cyan/5 border border-brand-cyan/10">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-4 h-4 bg-brand-cyan rounded flex items-center justify-center">
                   <Play className="w-2 h-2 text-brand-dark fill-current" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest font-bold text-brand-cyan">AI Live Suggestion</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-brand-cyan">Feedback</span>
               </div>
               <p className="text-xs text-white/70 leading-relaxed">
                 Mention the specific resolution framework you used (e.g., STAR method) to improve your narrative clarity.
               </p>
             </div>
-            
+
             <div className="space-y-4">
               {[
                 { label: 'Eye Contact', value: 'Optimal', color: 'text-brand-cyan' },
@@ -201,7 +201,7 @@ const SessionPreview = () => (
 const TextMarqueeSection = () => (
   <section className="py-24 overflow-hidden bg-[#08090b] border-t border-b border-white/5 relative flex flex-col gap-6">
     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.05),transparent_50%)] pointer-events-none" />
-    
+
     <div className="rotate-[-2deg] scale-110">
       <TextMarquee
         delay={0}
@@ -298,10 +298,10 @@ const Features = () => {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Engineered for Success</h2>
           <p className="text-white/40 max-w-xl mx-auto">Every tool you need to transition from candidate to employee.</p>
         </div>
-        
+
         <div className="grid md:grid-cols-2 gap-6">
           {features.map((f, i) => (
-            <motion.div 
+            <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -330,7 +330,7 @@ const AboutPrepAI = () => (
 
     <div className="max-w-6xl mx-auto relative z-10">
       <div className="grid lg:grid-cols-2 gap-16 items-center">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
@@ -342,9 +342,9 @@ const AboutPrepAI = () => (
               Mastering the art of the interview, <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-blue-400">powered by Intelligence.</span>
             </h2>
           </div>
-          
+
           <p className="text-lg text-white/60 leading-relaxed font-medium">
-            PrepAI was built with a singular vision: to democratize interview preparation. 
+            PrepAI was built with a singular vision: to democratize interview preparation.
             We noticed that the barrier between a great candidate and a great job wasn't always skill—it was simply the lack of realistic, high-pressure practice.
           </p>
 
@@ -358,7 +358,7 @@ const AboutPrepAI = () => (
                 <p className="text-sm text-white/50 leading-relaxed">Built from the ground up by Ayush Kumar Sao as a passion project to bridge the gap between technical brilliance and behavioral communication.</p>
               </div>
             </div>
-            
+
             <div className="flex gap-4">
               <div className="w-12 h-12 rounded-xl bg-brand-cyan/10 flex items-center justify-center flex-shrink-0">
                 <Activity className="w-5 h-5 text-brand-cyan" />
@@ -371,7 +371,7 @@ const AboutPrepAI = () => (
           </div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: 30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
@@ -380,14 +380,14 @@ const AboutPrepAI = () => (
           <div className="aspect-square max-w-[500px] mx-auto bg-gradient-to-tr from-brand-cyan/20 to-transparent rounded-[3rem] p-1 border border-white/10 shadow-2xl relative">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.1),transparent_70%)] pointer-events-none" />
             <div className="w-full h-full bg-[#0a0b0d] rounded-[2.8rem] overflow-hidden relative">
-               <OrbitingSkills />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0d] via-transparent to-transparent pointer-events-none" />
-               <div className="absolute bottom-8 left-8 right-8 z-20">
-                 <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl cursor-default pointer-events-auto hover:bg-white/15 transition-colors">
-                    <p className="text-brand-cyan font-mono text-sm mb-2">// Mission Objective</p>
-                    <p className="text-white/90 text-lg font-medium leading-snug">"Empowering engineers to walk into any room and own the technical conversation, every time."</p>
-                 </div>
-               </div>
+              <OrbitingSkills />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0d] via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-8 left-8 right-8 z-20">
+                <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl cursor-default pointer-events-auto hover:bg-white/15 transition-colors">
+                  <p className="text-brand-cyan font-mono text-sm mb-2">// Mission Objective</p>
+                  <p className="text-white/90 text-lg font-medium leading-snug">"Empowering engineers to walk into any room and own the technical conversation, every time."</p>
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -402,10 +402,10 @@ const PathToHiring = () => (
       <div className="text-center mb-20">
         <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Your Path to Hiring</h2>
       </div>
-      
+
       <div className="space-y-12 relative">
         <div className="absolute left-6 top-8 bottom-8 w-px bg-white/10" />
-        
+
         {[
           {
             step: 1,
@@ -423,7 +423,7 @@ const PathToHiring = () => (
             desc: "Receive a granular report within seconds. We analyze your body language, content quality, and key improvement areas for every single response."
           }
         ].map((item, i) => (
-          <motion.div 
+          <motion.div
             key={i}
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -447,7 +447,7 @@ const PathToHiring = () => (
 
 const CTA = () => (
   <section id="pricing" className="px-6 py-20">
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -456,7 +456,7 @@ const CTA = () => (
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
         <div className="absolute top-[-50%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-brand-cyan/5 rounded-full blur-[100px]" />
       </div>
-      
+
       <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-8 leading-[0.85]">
         Ready to Land Your <br />
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-blue-400">Dream Job?</span>

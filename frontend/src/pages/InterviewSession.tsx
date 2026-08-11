@@ -1,568 +1,833 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion'; // make sure framer-motion is used, earlier it was 'motion/react' which might be invalid
-import { 
-  Mic, 
-  MicOff, 
-  Video, 
-  VideoOff, 
-  Settings, 
-  User, 
-  Bot, 
-  Layout, 
-  Clock, 
-  Sparkles, 
-  ChevronRight, 
-  BarChart3, 
-  Activity, 
-  Smile, 
-  Zap, 
-  RotateCcw, 
-  SkipForward, 
-  PhoneOff, 
-  CheckCircle2,
-  Hash,
-  Play
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Mic, MicOff, Video, VideoOff, Settings, Clock, Sparkles,
+  BarChart3, RotateCcw, PhoneOff, CheckCircle2, Hash, Play,
+  CameraOff, Upload, ChevronRight, User,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
 import { useAuth } from '../hooks/useAuth';
+import { apiUrl } from '../lib/api';
+
+// ── Interview Phases ────────────────────────────────────────────────────────
+const PHASES = [
+  {
+    id: 'intro',
+    label: 'Introduction',
+    short: 'Intro',
+    color: 'text-blue-400',
+    bg: 'bg-blue-400/10',
+    border: 'border-blue-400/20',
+    systemHint: `You are a friendly, professional interviewer. This is the INTRODUCTION phase. Ask only ONE warm, welcoming intro question at a time. Start with "Tell me about yourself" or "Please give me a brief introduction." Keep your tone conversational, encouraging, and easy-going. This is NOT a technical round. Do not ask technical questions yet.`,
+    opening: `Welcome — I'm glad you're here today. Let's start simply: could you please tell me a bit about yourself, your background, and what brought you to this role?`,
+  },
+  {
+    id: 'skills',
+    label: 'Skills',
+    short: 'Skills',
+    color: 'text-yellow-400',
+    bg: 'bg-yellow-400/10',
+    border: 'border-yellow-400/20',
+    systemHint: `You are a friendly interviewer. This is the SKILLS phase. Ask ONE question at a time about the candidate's technical skills, tools, languages, and technologies they are comfortable with. Be conversational and encouraging. Gradually probe for depth but remain supportive. No harsh criticism.`,
+    opening: `Thanks for that introduction. Now let's talk about your technical skills — what programming languages or tools are you most comfortable working with?`,
+  },
+  {
+    id: 'projects',
+    label: 'Projects',
+    short: 'Projects',
+    color: 'text-brand-cyan',
+    bg: 'bg-brand-cyan/10',
+    border: 'border-brand-cyan/20',
+    systemHint: `You are a friendly interviewer. This is the PROJECTS phase. Ask ONE question at a time about the candidate's personal or academic projects. Ask about what they built, the tech stack, challenges faced, and what they learned. Be curious but encouraging.`,
+    opening: `I'd love to hear about your projects. Can you walk me through one project you're particularly proud of — what did you build and what technologies did you use?`,
+  },
+  {
+    id: 'internship',
+    label: 'Internship',
+    short: 'Experience',
+    color: 'text-purple-400',
+    bg: 'bg-purple-400/10',
+    border: 'border-purple-400/20',
+    systemHint: `You are a friendly interviewer. This is the INTERNSHIP/EXPERIENCE phase. Ask ONE question at a time about the candidate's internship or work experience. If they have none, ask about college labs, freelance work, or open source contributions. Be supportive.`,
+    opening: `Let's talk about your work experience. Have you done any internships, part-time roles, or freelance work? If so, tell me about your most recent one.`,
+  },
+  {
+    id: 'certifications',
+    label: 'Certifications',
+    short: 'Certs',
+    color: 'text-orange-400',
+    bg: 'bg-orange-400/10',
+    border: 'border-orange-400/20',
+    systemHint: `You are a friendly interviewer. This is the CERTIFICATIONS & LEARNING phase. Ask ONE question about certifications, online courses, hackathons, or any self-learning the candidate has done. Be enthusiastic about their growth mindset.`,
+    opening: `Have you earned any certifications, completed notable online courses, or participated in hackathons recently?`,
+  },
+  {
+    id: 'hr',
+    label: 'HR Round',
+    short: 'HR',
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-400/10',
+    border: 'border-emerald-400/20',
+    systemHint: `You are a warm, professional HR interviewer. This is the HUMAN RESOURCES phase. Ask ONE HR question at a time: why this company, career goals, strengths and weaknesses, salary expectations, where they see themselves in 5 years, teamwork style, handling pressure, etc. Be supportive and professional.`,
+    opening: `We're in the final stretch — just a few HR questions. Why are you interested in this role, and what are you hoping to achieve in your next position?`,
+  },
+];
+
+type CamState = 'requesting' | 'active' | 'denied' | 'idle';
 
 const InterviewSession = () => {
   const { user, token } = useAuth();
+
+  // ── Media ───────────────────────────────────────────────────────────────
   const [micOn, setMicOn] = useState(true);
   const [videoOn, setVideoOn] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(150);
-  const [activeTone, setActiveTone] = useState<'professional' | 'urgent' | 'analytic'>('professional');
-  
+  const [camState, setCamState] = useState<CamState>('idle');
+  const streamRef = useRef<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // ── Interview phase ──────────────────────────────────────────────────────
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  const currentPhase = PHASES[phaseIndex];
+
+  // ── Session ─────────────────────────────────────────────────────────────
+  const MAX_ANSWERS = 8;
+  const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 min
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  
   const [hasStarted, setHasStarted] = useState(false);
-  const [messages, setMessages] = useState<{role: string, content: string}[]>([
-    { role: 'assistant', content: "Welcome. This is the technical deep-dive round. I'll be assessing your engineering rigor, problem-solving, and system-level thinking. Let's begin: walk me through the most technically complex project you've built, and highlight the exact engineering tradeoffs you made." }       
-  ]);
+  const [isComplete, setIsComplete] = useState(false);
+  const [messages, setMessages] = useState<{ role: string; content: string; phase?: string }[]>([]);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
-  
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [fillerCount, setFillerCount] = useState(0);
   const [transcript, setTranscript] = useState('');
-  const [confidenceInfo, setConfidenceInfo] = useState({ score: 84, message: "Starting analysis." });
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [confidenceScore, setConfidenceScore] = useState(80);
+  const [questionCount, setQuestionCount] = useState(0);
+  const [answeredCount, setAnsweredCount] = useState(0); // tracks user answers only
+  const [redirectCountdown, setRedirectCountdown] = useState(10);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
   const recognitionRef = useRef<any>(null);
-
-  // Robust state tracking for speech recognition auto-restart
   const isAiSpeakingRef = useRef(false);
   const isAiProcessingRef = useRef(false);
   const hasStartedRef = useRef(false);
+  const phaseRef = useRef(0);
 
   useEffect(() => { isAiSpeakingRef.current = isAiSpeaking; }, [isAiSpeaking]);
   useEffect(() => { isAiProcessingRef.current = isAiProcessing; }, [isAiProcessing]);
   useEffect(() => { hasStartedRef.current = hasStarted; }, [hasStarted]);
+  useEffect(() => { phaseRef.current = phaseIndex; }, [phaseIndex]);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')} : ${secs.toString().padStart(2, '0')}`;
-  };
-
-  useEffect(() => {
-    let stream: MediaStream;
-    const startCamera = async () => {
+  // ── CAMERA: Video-only, 3-tier fallback ─────────────────────────────────
+  const startCamera = useCallback(async () => {
+    setCamState('requesting');
+    const tiers = [
+      { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } },
+      { video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } },
+      { video: true },
+    ];
+    for (const constraint of tiers) {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+        const stream = await navigator.mediaDevices.getUserMedia(constraint);
+        streamRef.current = stream;
+        if (videoRef.current) videoRef.current.srcObject = stream;
+        setCamState('active');
+        return;
+      } catch (err: any) {
+        const n = err?.name || '';
+        if (n === 'NotAllowedError' || n === 'PermissionDeniedError') {
+          setCamState('denied'); return;
         }
-      } catch (err) {
-        console.error("Camera access denied", err);
       }
-    };
-    startCamera();
-
-    return () => {
-      if (stream) stream.getTracks().forEach(t => t.stop());
-    };
+    }
+    setCamState('denied');
   }, []);
 
   useEffect(() => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getAudioTracks().forEach(t => t.enabled = micOn);
-      stream.getVideoTracks().forEach(t => t.enabled = videoOn);
-    }
-  }, [micOn, videoOn]);
+    startCamera();
+    return () => { streamRef.current?.getTracks().forEach(t => t.stop()); };
+  }, [startCamera]);
 
+  useEffect(() => {
+    streamRef.current?.getVideoTracks().forEach(t => (t.enabled = videoOn));
+  }, [videoOn]);
+
+  useEffect(() => {
+    if (videoRef.current && streamRef.current && !videoRef.current.srcObject) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  });
+
+  // ── Timer ────────────────────────────────────────────────────────────────
+  const fmt = (s: number) =>
+    `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
+
+  useEffect(() => {
+    if (!hasStarted) return;
+    const t = setInterval(() => setTimeLeft(p => (p > 0 ? p - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [hasStarted]);
+
+  // ── Speech Recognition ────────────────────────────────────────────────────
   useEffect(() => {
     // @ts-ignore
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+    const r = new SR();
+    r.continuous = true;
+    r.interimResults = true;
+    r.lang = 'en-US';
 
-      recognition.onresult = (event: any) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript + ' ';
-          }
-        }
-        
-        if (finalTranscript) {
-           setTranscript(prev => prev + finalTranscript);
-           
-           const fillerWords = ['um', 'uh', 'like', 'you know'];
-           const lowerTranscript = finalTranscript.toLowerCase();
-           let foundFillers = 0;
-           fillerWords.forEach(fw => {
-             const regex = new RegExp(`\\b${fw}\\b`, 'g');
-             const matches = lowerTranscript.match(regex);
-             if (matches) foundFillers += matches.length;
-           });
-           
-           if (foundFillers > 0) {
-             setFillerCount(prev => prev + foundFillers);
-             setConfidenceInfo({
-               score: Math.max(50, 84 - foundFillers * 2),
-               message: "Try to reduce the use of filler words."
-             });
-           }
-        }
-      };
-
-      // Attempt to auto-restart recognition if it stops unexpectedly (Chrome often kills it after silence)
-      recognition.onend = () => {
-        // ALWAYS restart listening UNLESS the AI is currently speaking or processing our answer!
-        if (hasStartedRef.current && !isAiProcessingRef.current && !isAiSpeakingRef.current) {
-          try {
-            recognition.start();
-          } catch (err) {}
-        }
-      };
-
-      recognitionRef.current = recognition;
+    r.onresult = (e: any) => {
+      let interim = '';
+      let final = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
+        else interim += e.results[i][0].transcript;
       }
-    }, []);
+      setLiveTranscript(interim);
+      if (final) {
+        setTranscript(p => p + final);
+        setLiveTranscript('');
+        const fillers = ['um', 'uh', 'like', 'you know', 'basically', 'literally'];
+        let found = 0;
+        fillers.forEach(fw => {
+          const m = final.toLowerCase().match(new RegExp(`\\b${fw}\\b`, 'g'));
+          if (m) found += m.length;
+        });
+        if (found > 0) {
+          setFillerCount(p => p + found);
+          setConfidenceScore(p => Math.max(40, p - found * 2));
+        }
+      }
+    };
 
+    r.onend = () => {
+      if (hasStartedRef.current && !isAiProcessingRef.current && !isAiSpeakingRef.current) {
+        try { r.start(); } catch (_) { }
+      }
+    };
+
+    recognitionRef.current = r;
+  }, []);
+
+  // Preload voices
   useEffect(() => {
-    // Pre-load voices on component mount so they're ready when the user clicks Play
     if (window.speechSynthesis) {
-        window.speechSynthesis.getVoices();
-        window.speechSynthesis.onvoiceschanged = () => {
-            window.speechSynthesis.getVoices();
-        };
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
   }, []);
 
+  // Auto-submit after silence
   useEffect(() => {
-    const timer = setInterval(() => setTimeLeft(prev => (prev > 0 ? prev - 1 : 0)), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Hands-free auto-submit mechanism: detect silence and trigger submit
-  useEffect(() => {
-    let silenceTimer: NodeJS.Timeout;
-    // Lowered threshold to > 3 characters so short answers trigger it too
-    if (transcript.trim().length > 3 && hasStarted && !isAiProcessing && !isAiSpeaking) {
-      silenceTimer = setTimeout(() => {
-        document.getElementById('autoSubmitBtn')?.click();
-      }, 1500); // 1.5s for faster, snappy responses
+    if (transcript.trim().length > 5 && hasStarted && !isAiProcessing && !isAiSpeaking) {
+      const t = setTimeout(() => document.getElementById('autoSubmit')?.click(), 2000);
+      return () => clearTimeout(t);
     }
-    return () => clearTimeout(silenceTimer);
   }, [transcript, hasStarted, isAiProcessing, isAiSpeaking]);
 
-  const speakText = (text: string) => {
-    if (!window.speechSynthesis) {
-        console.error("Speech synthesis not supported in this browser.");
-        return;
-    }
-    
+  // ── TTS ──────────────────────────────────────────────────────────────────
+  const speakText = async (text: string) => {
+    try { recognitionRef.current?.stop(); } catch (_) { }
+    const clean = text.replace(/[*#_`]/g, '');
+    setIsAiSpeaking(true);
+
+    // Try ElevenLabs
     try {
-      recognitionRef.current?.stop(); // prevent AI from hearing itself
-    } catch (e) {
-      console.warn("Could not stop recognition:", e);
-    }
-
-    const textToSpeak = text.replace(/[*#_`]/g, '');
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    
-    // Attempt to find the most natural, human-sounding "sweet" voice (Microsoft/Google female voices usually)
-    const voices = window.speechSynthesis.getVoices();
-    
-    const preferredVoices = [
-      "Microsoft Ana Online (Natural) - English (United States)",
-      "Microsoft Michelle Online (Natural) - English (United States)",
-      "Microsoft Jenny Online (Natural) - English (United States)",
-      "Google US English",
-      "Samantha",
-      "Victoria",
-      "Tessa" 
-    ];
-
-    let selectedVoice = voices.find(v => preferredVoices.some(pv => v.name.includes(pv)));
-    
-    if (!selectedVoice) {
-      selectedVoice = voices.find(v => 
-        (v.lang === 'en-US' || v.lang === 'en-GB') && 
-        (v.name.includes('Female') || v.name.includes('Google') || v.name.includes('Zira'))) 
-        || voices.find(v => v.lang.includes('en'));
-    }
-
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-    
-    utterance.lang = "en-US";
-    
-    // Maximizing sweetness: Higher pitch, slightly slower rate to sound thoughtful and gentle
-    utterance.rate = 0.98; // Slightly slowed down from 1.05 so she doesn't sound rushed
-    utterance.pitch = 1.4; // Pushed higher to make it sound cuter and softer
-    utterance.volume = 1;
-
-    utterance.onstart = () => {
-      console.log("Started speaking:", textToSpeak);
-      setIsAiSpeaking(true);
-    };
-    
-    utterance.onend = () => {
-      console.log("Finished speaking.");
-      setIsAiSpeaking(false);
-      try {
-        if (micOn && recognitionRef.current) {
-          recognitionRef.current.start();
-        }
-      } catch (e) {
-         console.warn("Could not start recognition:", e);
-      }
-    };
-    
-    utterance.onerror = (e) => {
-      console.error("Speech synthesis error:", e);
-      setIsAiSpeaking(false);
-    };
-
-    // Store utterance globally to prevent Chrome from garbage collecting it before onend fires!
-    (window as any)._currUtterance = utterance;
-
-    window.speechSynthesis.speak(utterance);
-
-    // Workaround for Chrome bug where long texts randomly stop:
-    // pause/resume every 14 seconds (though these are short sentences anyway)
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('resume', file);
-
-    try {
-      const API_BASE = (import.meta.env.PROD ? '/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api')).replace(/\/$/, '');
-      const response = await fetch(`${API_BASE}/upload-resume`, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token || localStorage.getItem('prepai_token')}`
-        },
-        body: formData,
+      const res = await fetch(apiUrl('/tts'), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: clean }),
       });
-      
-      const data = await response.json();
-      if (data.success) {
-        setMessages([{ role: 'assistant', content: data.question }]);
-        setResumeUploaded(true);
-        console.log("Resume skills:", data.skills);
-      } else {
-        alert("Upload failed: " + (data.error || data.message || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Upload failed", error);
-      alert("Failed to parse resume.");
-    } finally {
-      setIsUploading(false);
-    }
+      if (!res.ok) throw new Error();
+      const audio = new Audio(URL.createObjectURL(await res.blob()));
+      audio.onended = () => {
+        setIsAiSpeaking(false);
+        if (micOn && recognitionRef.current) try { recognitionRef.current.start(); } catch (_) { }
+      };
+      audio.play(); return;
+    } catch (_) { }
+
+    // Fallback: browser TTS
+    if (!window.speechSynthesis) { setIsAiSpeaking(false); return; }
+    const utt = new SpeechSynthesisUtterance(clean);
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = ['Microsoft Ana Online', 'Microsoft Zira', 'Google US English', 'Samantha'];
+    const voice = voices.find(v => preferred.some(p => v.name.includes(p))) || voices[0];
+    if (voice) utt.voice = voice;
+    utt.lang = 'en-US'; utt.rate = 0.95; utt.pitch = 1.1;
+    utt.onend = () => {
+      setIsAiSpeaking(false);
+      try { if (micOn && recognitionRef.current) recognitionRef.current.start(); } catch (_) { }
+    };
+    utt.onerror = () => setIsAiSpeaking(false);
+    window.speechSynthesis.speak(utt);
   };
 
+  // ── Resume Upload ──────────────────────────────────────────────────────────
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    setIsUploading(true);
+    const fd = new FormData();
+    fd.append('resume', e.target.files[0]);
+    try {
+      const res = await fetch(apiUrl('/upload-resume'), {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token || localStorage.getItem('prepai_token')}` },
+        body: fd,
+      });
+      const data = await res.json();
+      if (data.success) setResumeUploaded(true);
+      else alert('Upload failed: ' + (data.error || 'Unknown error'));
+    } catch { alert('Failed to parse resume.'); }
+    finally { setIsUploading(false); }
+  };
+
+  // ── Start Interview ────────────────────────────────────────────────────────
   const handleStart = () => {
-    console.log("Begin Interview clicked!");
+    const opening = PHASES[0].opening;
+    setMessages([{ role: 'assistant', content: opening, phase: 'intro' }]);
+    setQuestionCount(1);
     setHasStarted(true);
-    // Add a tiny delay to ensure React state paints before we lock the main thread with speech,
-    // which can sometimes help browsers recognize the user gesture correctly.
-    setTimeout(() => {
-        const firstMessage = messages.find(m => m.role === 'assistant')?.content || "Hello.";
-        speakText(firstMessage);
-    }, 50);
+    try { recognitionRef.current?.start(); } catch (_) { }
+    setTimeout(() => speakText(opening), 300);
   };
 
+  // ── Submit Answer ──────────────────────────────────────────────────────────
   const handleSubmitAnswer = async () => {
-    if (isAiProcessing) return;
-    
+    if (isAiProcessing || isComplete) return;
     recognitionRef.current?.stop();
-    const candidateAnswer = transcript.trim();
-    if (!candidateAnswer) {
-      speakText("I didn't quite catch that. Could you please provide your answer?");
+    const answer = (transcript + ' ' + liveTranscript).trim();
+    if (!answer) {
+      speakText("I didn't quite catch that. Could you please repeat your answer?");
+      return;
+    }
+    setTranscript('');
+    setLiveTranscript('');
+    const newAnsweredCount = answeredCount + 1;
+    setAnsweredCount(newAnsweredCount);
+    const newMessages = [...messages, { role: 'user', content: answer, phase: currentPhase.id }];
+    setMessages(newMessages);
+    setIsAiProcessing(true);
+
+    // ── Check completion BEFORE fetching next AI question ──
+    if (newAnsweredCount >= MAX_ANSWERS) {
+      setIsAiProcessing(false);
+      finishInterview();
       return;
     }
 
-    const newMessages = [...messages, { role: 'user', content: candidateAnswer }];
-    setMessages(newMessages);
-    setTranscript('');
-    setIsAiProcessing(true);
-
     try {
-      const API_BASE = (import.meta.env.PROD ? '/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api')).replace(/\/$/, '');
-      const res = await fetch(`${API_BASE}/interview`, {
+      const phase = PHASES[phaseRef.current];
+      const res = await fetch(apiUrl('/interview'), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           messages: newMessages,
-          context: { role: user?.targetRole || 'Software Engineer', type: 'Technical' }
-        })
+          context: {
+            role: user?.targetRole || 'Software Engineer',
+            type: phase.label,
+            systemHint: phase.systemHint,
+          },
+        }),
       });
-      
       const data = await res.json();
-      const aiResponse = data.message || "Could you provide more details?";
-      
-      setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
-      speakText(aiResponse);
-      
-      setConfidenceInfo(prev => ({
-         ...prev,
-         message: "Analysis updated."
-      }));
-      
-    } catch (err) {
-      console.error("AI interview error: ", err);
-      speakText("I'm sorry, there's a connection error. Could we try again?");
+      const reply = data.message || 'Thank you. Could you tell me more?';
+      setMessages(p => [...p, { role: 'assistant', content: reply, phase: phase.id }]);
+      setQuestionCount(p => p + 1);
+      setConfidenceScore(p => Math.min(100, p + 3));
+      speakText(reply);
+    } catch {
+      speakText("I'm sorry, there's a connection issue. Let's try again.");
     } finally {
       setIsAiProcessing(false);
     }
   };
-  
-  const repeatQuestion = () => {
-    recognitionRef.current?.stop();
-    const lastAssistantMsg = [...messages].reverse().find(m => m.role === 'assistant')?.content || "";
-    speakText(lastAssistantMsg);
+
+  // ── Move to next phase ────────────────────────────────────────────────────
+  const handleNextPhase = () => {
+    const next = Math.min(phaseIndex + 1, PHASES.length - 1);
+    setPhaseIndex(next);
+    setTranscript('');
+    setLiveTranscript('');
+    const opening = PHASES[next].opening;
+    const transitionMsg = { role: 'assistant', content: opening, phase: PHASES[next].id };
+    setMessages(p => [...p, transitionMsg]);
+    setQuestionCount(p => p + 1);
+    speakText(opening);
   };
 
+  const repeatQuestion = () => {
+    recognitionRef.current?.stop();
+    const last = [...messages].reverse().find(m => m.role === 'assistant')?.content || '';
+    speakText(last);
+  };
+
+  // ── Finish Interview ─────────────────────────────────────────────────────
+  const finishInterview = async () => {
+    // Stop mic and camera
+    try { recognitionRef.current?.stop(); } catch (_) { }
+    window.speechSynthesis?.cancel();
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    setIsComplete(true);
+    setHasStarted(false);
+
+    try {
+      await fetch(apiUrl('/save-session'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          role: user?.targetRole || 'Software Engineer',
+          score: confidenceScore,
+          questions: answeredCount,
+          fillers: fillerCount
+        })
+      });
+    } catch (err) {
+      console.error('Failed to save session:', err);
+    }
+  };
+
+  // Countdown redirect when complete
+  useEffect(() => {
+    if (!isComplete) return;
+    if (redirectCountdown <= 0) {
+      window.location.href = '/dashboard';
+      return;
+    }
+    const t = setInterval(() => setRedirectCountdown(p => p - 1), 1000);
+    return () => clearInterval(t);
+  }, [isComplete, redirectCountdown]);
+
+  const lastAiMessage = [...messages].reverse().find(m => m.role === 'assistant')?.content || '';
+  const phasesReached = [...new Set(messages.map(m => m.phase).filter(Boolean))].length;
+
+  // ── RENDER ────────────────────────────────────────────────────────────────
   return (
     <div className="h-screen w-full flex flex-col bg-[#08090b] text-white overflow-hidden font-sans">
-      <header className="h-auto md:h-16 py-3 md:py-0 border-b border-white/[0.03] bg-[#0a0b0d] flex flex-col md:flex-row items-center justify-between px-4 md:px-8 shrink-0 relative z-50 gap-4 md:gap-0">
-        <div className="flex items-center gap-6 md:gap-12 w-full md:w-auto justify-between md:justify-start">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-tight">PrepAI</span>
-          </Link>
-          <nav className="flex items-center gap-6 md:gap-10">
-            <Link to="/dashboard" className="text-[11px] font-bold text-white/40 uppercase tracking-widest hover:text-white transition-colors">Dashboard</Link>
-            <Link to="/interview" className="text-[11px] font-bold text-brand-cyan uppercase tracking-widest border-b-2 border-brand-cyan py-3 md:py-5">AI Interview</Link>
-          </nav>
+
+      {/* ═══ INTERVIEW COMPLETE OVERLAY ═══ */}
+      <AnimatePresence>
+        {isComplete && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-[999] bg-[#08090b] flex flex-col items-center justify-center p-6 text-center"
+          >
+            {/* Background glow */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-cyan/[0.05] rounded-full blur-[130px]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-emerald-400/[0.06] rounded-full blur-[80px]" />
+            </div>
+
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, type: 'spring', stiffness: 220, damping: 20 }}
+              className="relative z-10 flex flex-col items-center max-w-[440px] w-full"
+            >
+              {/* Trophy icon */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3, type: 'spring', stiffness: 300 }}
+                className="w-20 h-20 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6"
+              >
+                <CheckCircle2 size={36} className="text-emerald-400" />
+              </motion.div>
+
+              <h1 className="text-[30px] md:text-[36px] font-bold mb-2 tracking-tight">Interview Complete</h1>
+              <p className="text-[13px] text-white/40 font-medium mb-8">
+                You answered all <strong className="text-white/60">{MAX_ANSWERS} questions</strong>. Here's your session summary.
+              </p>
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-3 w-full mb-5">
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 flex flex-col items-center gap-1.5">
+                  <span className="text-[28px] font-bold text-white">{MAX_ANSWERS}</span>
+                  <span className="text-[9px] font-semibold text-white/25 uppercase tracking-widest">Answers</span>
+                </div>
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 flex flex-col items-center gap-1.5">
+                  <span className="text-[28px] font-bold text-white">{phasesReached}</span>
+                  <span className="text-[9px] font-semibold text-white/25 uppercase tracking-widest">Sections</span>
+                </div>
+              </div>
+
+              {/* Filler row */}
+              <div className="w-full flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.05] rounded-xl mb-7">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center shrink-0">
+                    <Hash size={14} className="text-white/30" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[12px] font-semibold text-white/60">Filler Words</p>
+                    <p className="text-[10px] text-white/25 font-medium">
+                      {fillerCount === 0 ? 'Excellent — none detected!' : `${fillerCount} detected — try reducing "um", "like", "uh"`}
+                    </p>
+                  </div>
+                </div>
+                <span className={`text-[24px] font-bold ${fillerCount === 0 ? 'text-emerald-400' : fillerCount < 5 ? 'text-yellow-400' : 'text-red-400'}`}>
+                  {fillerCount}
+                </span>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 w-full">
+                <button onClick={() => window.location.href = '/dashboard'}
+                  className="flex-1 py-3.5 bg-brand-cyan text-[#08090b] rounded-xl font-bold text-[13px] hover:brightness-110 transition-all shadow-[0_8px_24px_rgba(34,211,238,0.25)]">
+                  View Dashboard
+                </button>
+                <button onClick={() => window.location.reload()}
+                  className="flex-1 py-3.5 bg-white/[0.04] hover:bg-white/10 border border-white/[0.06] rounded-xl font-semibold text-[13px] text-white/55 hover:text-white transition-all">
+                  New Interview
+                </button>
+              </div>
+
+              <p className="mt-5 text-[11px] text-white/20 font-medium">
+                Redirecting to dashboard in <span className="text-white/40 font-bold tabular-nums">{redirectCountdown}s</span>
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Navbar ── */}
+      <header className="h-14 border-b border-white/[0.04] bg-[#0a0b0d] flex items-center justify-between px-5 md:px-8 shrink-0 z-50">
+        <div className="flex items-center gap-6">
+          <Link to="/" className="text-[15px] font-bold tracking-tight">PrepAI</Link>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Camera status */}
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border ${camState === 'active' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400' :
+            camState === 'denied' ? 'border-red-500/30 bg-red-500/10 text-red-400' :
+              camState === 'requesting' ? 'border-yellow-500/20 bg-yellow-500/10 text-yellow-400 animate-pulse' :
+                'border-white/10 text-white/20'
+            }`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${camState === 'active' ? 'bg-emerald-400' :
+              camState === 'denied' ? 'bg-red-400' :
+                camState === 'requesting' ? 'bg-yellow-400' : 'bg-white/20'
+              }`} />
+            {camState === 'active' ? 'Live' : camState === 'denied' ? 'No Camera' : camState === 'requesting' ? 'Starting...' : 'Off'}
+          </div>
+          {hasStarted && (
+            <div className="flex items-center gap-1.5 text-white/40 tabular-nums">
+              <Clock size={12} className="text-brand-cyan/60" />
+              <span className="text-[12px] font-semibold font-mono">{fmt(timeLeft)}</span>
+            </div>
+          )}
         </div>
       </header>
 
-      <div className="flex-1 flex min-h-0 flex-col md:flex-row">
-        <aside className="hidden md:flex w-64 border-r border-white/[0.03] bg-[#08090b] flex-col shrink-0 p-8">
-          <div className="mb-12">
-            <h2 className="text-lg font-bold tracking-tight mb-0.5">Architect Mode</h2>
-            <div className="text-[9px] font-bold uppercase text-white/20 tracking-[0.2em]">System Active</div>
-          </div>
-          <nav className="space-y-3">
-            <Link to="/dashboard" className="flex items-center gap-4 px-4 py-3 text-white/40 hover:text-white transition-all group">
-              <Layout size={18} className="group-hover:text-brand-cyan" />
-              <span className="text-xs font-bold">Dashboard</span>
-            </Link>
-            <Link to="/interview" className="flex items-center gap-4 px-4 py-3 bg-[#0c1a1d] text-brand-cyan rounded-lg border border-brand-cyan/20 shadow-inner">
-              <User size={18} />
-              <span className="text-xs font-bold">AI Mock Interviews</span>
-            </Link>
-          </nav>
-        </aside>
+      {/* ── Main body: Camera LEFT + Content RIGHT ── */}
+      <div className="flex-1 flex min-h-0 overflow-hidden">
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-10 flex flex-col gap-6 md:gap-8 custom-scrollbar bg-[#08090b]">
-          <div className="w-full aspect-[4/3] md:aspect-video bg-[#0a0b0d] rounded-2xl md:rounded-[32px] overflow-hidden relative border border-white/5 shadow-2xl">
-            
-            <video 
-              ref={videoRef}
-              autoPlay 
-              playsInline 
-              muted 
-              className={`w-full h-full object-cover transition-opacity duration-500 ${videoOn ? 'opacity-100' : 'opacity-0'}`}
-            />
-            {!videoOn && (
-               <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-                 <VideoOff className="w-16 h-16 text-white/20" />
-               </div>
+        {/* ═══ LEFT — Full Camera Panel ═══ */}
+        <div className="relative w-full md:w-[55%] lg:w-[60%] bg-black flex-shrink-0 overflow-hidden">
+          {/* Video element — always rendered */}
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${camState === 'active' && videoOn ? 'opacity-100' : 'opacity-0'
+              }`}
+          />
+
+          {/* ── Requesting overlay ── */}
+          <AnimatePresence>
+            {camState === 'requesting' && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-[#0a0b0d] flex flex-col items-center justify-center gap-5">
+                <div className="w-16 h-16 rounded-full border-2 border-brand-cyan/30 border-t-brand-cyan animate-spin" />
+                <div className="text-center">
+                  <p className="text-[14px] font-semibold text-white/60 mb-1">Starting your camera</p>
+                  <p className="text-[11px] text-white/25">Please allow camera access in the browser prompt</p>
+                </div>
+              </motion.div>
             )}
-            
-            <div className="absolute top-8 left-8 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shrink-0">
-               <div className={`w-2.5 h-2.5 rounded-full ${hasStarted && !isAiSpeaking ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)] animate-pulse' : 'bg-red-500/30'}`} />
-               <span className="text-[10px] font-bold uppercase tracking-widest text-white/90">
-                 {hasStarted ? 'Recording' : 'Standby'}
-               </span>
-            </div>
+          </AnimatePresence>
 
-            <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 rounded-xl md:rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-3 md:p-5 flex items-center gap-3 md:gap-5 max-w-[calc(100%-2rem)] md:min-w-[280px]">
-               <div className="flex gap-1 md:gap-1.5 items-end h-4 md:h-6 shrink-0">
-                  {[3, 7, 5, 9, 4, 8].map((h, i) => (
-                    <motion.div 
-                      key={i} 
-                      animate={{ height: isAiSpeaking ? ['20%', '100%', '40%', '80%', '20%'] : '20%' }} 
-                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.1 }}
-                      className="w-0.5 md:w-1 bg-brand-cyan rounded-full" 
-                    />
-                  ))}
-               </div>
-               <div className="min-w-0">
-                  <h4 className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-brand-cyan mb-0.5 truncate">AI Analyst</h4>
-                  <p className="text-[9px] md:text-[10px] font-bold text-white/30 truncate">
-                    {isAiSpeaking ? 'Speaking...' : hasStarted ? 'Listening for intent...' : 'Ready to start'}
+          {/* ── Denied overlay ── */}
+          <AnimatePresence>
+            {camState === 'denied' && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-[#0a0b0d] flex flex-col items-center justify-center gap-6 p-10 text-center">
+                <div className="w-20 h-20 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                  <CameraOff size={32} className="text-red-400" />
+                </div>
+                <div>
+                  <p className="text-[16px] font-bold text-white/80 mb-2">Camera access blocked</p>
+                  <p className="text-[12px] text-white/35 leading-relaxed mb-6 max-w-xs">
+                    Click the <strong className="text-white/55">🔒 lock icon</strong> in your address bar →
+                    set Camera to <strong className="text-white/55">Allow</strong> → click Try Again.
                   </p>
-               </div>
-            </div>
-
-            {!hasStarted && !resumeUploaded && (
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-8 text-center">
-                <h3 className="text-2xl font-bold mb-4">Targeted AI Interview</h3>
-                <p className="text-white/60 mb-6 max-w-md">Upload your resume. The AI Architect will analyze your experiences and generate personalized technical questions.</p>
-                <div className="relative">
-                  <input 
-                    type="file" 
-                    accept="application/pdf"
-                    onChange={handleFileUpload}
-                    disabled={isUploading}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <div className={`flex items-center gap-3 px-8 py-4 ${isUploading ? 'bg-gray-600' : 'bg-brand-cyan'} text-brand-dark rounded-full font-bold text-sm shadow-[0_0_40px_rgba(34,211,238,0.3)] transition-transform`}>
-                    {isUploading ? 'Analyzing Resume...' : 'Upload PDF Resume'}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onClick={startCamera}
+                      className="px-6 py-3 bg-brand-cyan text-[#08090b] rounded-xl text-[13px] font-bold hover:brightness-110 transition-all">
+                      Try Again
+                    </button>
+                    <button onClick={() => setCamState('idle')}
+                      className="px-6 py-3 bg-white/[0.06] hover:bg-white/10 border border-white/[0.08] rounded-xl text-[13px] font-semibold text-white/50 transition-all">
+                      Continue without camera
+                    </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
+          </AnimatePresence>
 
-            {!hasStarted && resumeUploaded && (
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center z-10">
-                <p className="text-brand-cyan mb-6 font-bold tracking-wider uppercase text-sm">Resume Analyzed successfully</p>
-                <button
-                  onClick={handleStart}
-                  className="flex items-center gap-3 px-8 py-4 bg-brand-cyan text-brand-dark rounded-full font-bold text-sm shadow-[0_0_40px_rgba(34,211,238,0.3)] hover:scale-105 transition-transform"
-                >
-                  <Play className="fill-current" />
-                  Begin Interview
+          {/* ── Video off placeholder ── */}
+          {camState === 'active' && !videoOn && (
+            <div className="absolute inset-0 bg-[#0a0b0d] flex flex-col items-center justify-center gap-3">
+              <div className="w-20 h-20 rounded-full bg-white/[0.04] flex items-center justify-center">
+                <User size={32} className="text-white/20" />
+              </div>
+              <p className="text-[12px] text-white/25 font-medium">Camera paused</p>
+            </div>
+          )}
+
+          {/* ── Upload Resume overlay (pre-start) ── */}
+          <AnimatePresence>
+            {!hasStarted && !resumeUploaded && camState !== 'requesting' && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.97 }}
+                className="absolute inset-0 flex flex-col items-center justify-center bg-black/65 backdrop-blur-sm p-8 text-center z-10">
+                <div className="w-14 h-14 rounded-2xl bg-brand-cyan/10 border border-brand-cyan/20 flex items-center justify-center mb-5">
+                  <Upload size={22} className="text-brand-cyan" />
+                </div>
+                <h2 className="text-[20px] font-bold mb-2">Upload Your Resume</h2>
+                <p className="text-[12px] text-white/40 mb-7 max-w-[280px] leading-relaxed font-medium">
+                  The AI will personalize your interview questions based on your experience, skills, and projects.
+                </p>
+                <label className="relative cursor-pointer">
+                  <input type="file" accept="application/pdf" onChange={handleFileUpload}
+                    disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                  <div className={`flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-semibold text-[13px] transition-all ${isUploading ? 'bg-white/10 text-white/40' :
+                    'bg-brand-cyan text-[#08090b] hover:brightness-110 shadow-[0_8px_24px_rgba(34,211,238,0.3)]'
+                    }`}>
+                    {isUploading ? <><div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />Analyzing...</> :
+                      <><Upload size={15} /> Choose PDF</>}
+                  </div>
+                </label>
+                <button onClick={() => setResumeUploaded(true)}
+                  className="mt-4 text-[10px] text-white/25 hover:text-white/50 transition-colors underline underline-offset-2">
+                  Skip — use standard questions
                 </button>
-              </div>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
 
-          <div className="bg-[#0e0f12] border border-white/5 rounded-2xl md:rounded-[32px] p-6 md:p-12 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-brand-cyan/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-            <div className="relative z-10 space-y-6 md:space-y-8">
-               <span className="px-4 md:px-5 py-2 bg-[#1b232e] text-blue-400 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] inline-block mb-2">
-                 Live Feed
-               </span>
-               <div className="text-xl md:text-2xl lg:text-3xl font-medium leading-relaxed font-sans text-white/90 max-w-full md:max-w-[80%]">
-                 {[...messages].reverse().find(m => m.role === 'assistant')?.content || "Connecting..."}
-               </div>
+          {/* ── Start Interview overlay ── */}
+          <AnimatePresence>
+            {!hasStarted && resumeUploaded && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.97 }}
+                className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[3px] z-10 text-center p-8">
+                <div className="w-16 h-16 rounded-full bg-brand-cyan/10 border border-brand-cyan/20 flex items-center justify-center mb-5">
+                  <Play size={22} className="text-brand-cyan fill-current translate-x-0.5" />
+                </div>
+                <h2 className="text-[22px] font-bold mb-2">Ready to Begin?</h2>
+                <p className="text-[12px] text-white/40 mb-2 font-medium">Your camera is on. We'll start with a friendly introduction.</p>
+                <div className="flex flex-wrap gap-2 justify-center mb-8 mt-3">
+                  {PHASES.map(p => (
+                    <span key={p.id} className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border ${p.bg} ${p.border} ${p.color}`}>
+                      {p.short} {p.label}
+                    </span>
+                  ))}
+                </div>
+                <button onClick={handleStart}
+                  className="flex items-center gap-3 px-10 py-4 bg-brand-cyan text-[#08090b] rounded-xl font-bold text-[15px] shadow-[0_8px_30px_rgba(34,211,238,0.35)] hover:brightness-110 hover:scale-[1.02] transition-all">
+                  <Play size={18} className="fill-current" /> Start Interview
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-               {transcript && (
-                 <div className="mt-4 p-4 border-l-2 border-brand-cyan/40 bg-brand-cyan/5 text-white/60 text-xs md:text-sm italic">
-                   ... {transcript.substring(Math.max(0, transcript.length - 100), transcript.length)}
-                 </div>
-               )}
-               
-               <div className="flex flex-col md:flex-row gap-4 pt-4">
-                  <button onClick={repeatQuestion} disabled={!hasStarted || isAiProcessing} className="flex items-center justify-center md:justify-start gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-xs font-bold transition-all disabled:opacity-50">
-                    <RotateCcw size={16} /> Repeat Question
-                  </button>
-                  <button id="autoSubmitBtn" onClick={handleSubmitAnswer} disabled={!hasStarted || isAiProcessing || !transcript.trim()} className="flex items-center justify-center md:justify-start gap-3 px-6 py-3 bg-brand-cyan/10 hover:bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/20 rounded-2xl text-xs font-bold transition-all disabled:opacity-50 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
-                    <CheckCircle2 size={16} /> {isAiProcessing ? 'Thinking...' : 'Submit Answer'}
-                  </button>
-               </div>
-            </div>
-          </div>
-        </main>
+          {/* ── Overlays (when started) ── */}
+          {hasStarted && (
+            <>
+              {/* Recording badge */}
+              <div className={`absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-md text-[10px] font-semibold tracking-widest transition-all ${!isAiSpeaking ? 'bg-red-500/20 border-red-500/30 text-red-300' : 'bg-black/50 border-white/10 text-white/40'
+                }`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${!isAiSpeaking ? 'bg-red-400 animate-pulse' : 'bg-white/20'}`} />
+                {isAiSpeaking ? 'AI Speaking' : 'Recording'}
+              </div>
 
-        <aside className="w-full lg:w-[380px] border-t lg:border-t-0 lg:border-l border-white/[0.03] bg-[#08090b] p-6 md:p-8 flex flex-col gap-8 md:gap-10 shrink-0">
-          <div>
-            <div className="flex items-center gap-3 mb-8">
-               <BarChart3 size={18} className="text-brand-cyan" />
-               <h3 className="text-xs font-bold uppercase tracking-[0.2em]">Live Analysis</h3>
-            </div>
-            <div className="space-y-4 mb-10">
-               <div className="flex justify-between items-end">
-                 <span className="text-[11px] font-bold text-white/30 tracking-widest uppercase">Confidence Level</span>
-                 <span className="text-xl font-bold text-brand-cyan">{hasStarted ? confidenceInfo.score : '--'}%</span>
-               </div>
-               <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                 <div className="h-full bg-brand-cyan transition-all duration-1000" style={{ width: `${hasStarted ? confidenceInfo.score : 0}%` }}/>
-               </div>
-            </div>
-            <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-between mb-8">
-               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-white/5 rounded-xl"><Hash size={18} className="text-white/20" /></div>
-                 <span className="text-xs font-bold text-white/40">Filler Word Count</span>
-               </div>
-               <span className="text-2xl font-bold tracking-tight">{fillerCount.toString().padStart(2, '0')}</span>
-            </div>
-            <div className="p-6 bg-[#0f1b20] border border-brand-cyan/10 rounded-2xl relative overflow-hidden group">
-               <div className="flex items-start gap-4">
-                 <Sparkles size={18} className="text-brand-cyan shrink-0 mt-0.5 animate-pulse" />
-                 <p className="text-xs leading-relaxed text-[#5bbaba]">
-                   <span className="font-bold mr-1">Insight:</span>
-                   {hasStarted ? confidenceInfo.message : "Waiting to analyze speech patterns."}
-                 </p>
-               </div>
-            </div>
-          </div>
-        </aside>
-      </div>
+              {/* Phase badge */}
+              <div className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-md text-[10px] font-semibold ${currentPhase.bg} ${currentPhase.border} ${currentPhase.color}`}>
+                {currentPhase.label}
+              </div>
 
-      <footer className="h-20 md:h-24 bg-[#0a0b0d] border-t border-white/[0.03] flex items-center justify-center md:justify-between px-6 md:px-10 shrink-0 relative z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-        
-        {/* Left: Time (keeps center controls perfectly centered) */}
-        <div className="hidden md:flex items-center gap-3 text-white/50 w-40">
-          <Clock size={16} className="text-brand-cyan/70" />
-          <span className="text-sm font-bold tracking-wider font-mono">{formatTime(timeLeft)}</span>
+              {/* Waveform */}
+              <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
+                <div className="flex gap-0.5 items-end h-5">
+                  {[1, 2, 3, 4, 5, 6].map((_, i) => (
+                    <motion.div key={i}
+                      animate={{ height: isAiSpeaking ? ['20%', '100%', '40%', '80%', '20%'] : '20%' }}
+                      transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.1 }}
+                      className="w-0.5 bg-brand-cyan rounded-full"
+                    />
+                  ))}
+                </div>
+                <div>
+                  <p className="text-[9px] font-semibold uppercase tracking-widest text-brand-cyan">Interviewer</p>
+                  <p className="text-[9px] text-white/30 mt-0.5">
+                    {isAiSpeaking ? 'Speaking...' : isAiProcessing ? 'Processing...' : 'Listening'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Live transcript preview */}
+              {(transcript || liveTranscript) && (
+                <div className="absolute bottom-4 right-4 max-w-[55%] bg-black/70 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3">
+                  <p className="text-[9px] font-semibold uppercase tracking-widest text-white/30 mb-1">You</p>
+                  <p className="text-[11px] text-white/60 leading-relaxed line-clamp-3">
+                    {(transcript + ' ' + liveTranscript).trim().slice(-150)}
+                    {liveTranscript && <span className="text-white/30 italic"> {liveTranscript}</span>}
+                  </p>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
-        {/* Center: Main Controls */}
-        <div className="flex items-center justify-center gap-4 md:gap-6">
-          <button
-            onClick={() => setMicOn(!micOn)}
-            className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all ${micOn ? 'bg-white/10 hover:bg-white/20 text-white shadow-sm' : 'bg-red-500/20 text-red-500 border border-red-500/30'}`}
-            title="Toggle Microphone"
-          >
-            {micOn ? <Mic size={22} /> : <MicOff size={22} />}
+        {/* ═══ RIGHT — AI Question + Analysis ═══ */}
+        <div className="flex-1 flex flex-col border-l border-white/[0.04] overflow-hidden bg-[#08090b]">
+
+          {/* AI Question panel */}
+          <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-5 custom-scrollbar">
+
+            {/* Phase progress */}
+            {hasStarted && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {PHASES.map((p, i) => (
+                  <div key={p.id} className={`flex items-center gap-1 text-[10px] font-semibold ${i === phaseIndex ? `${p.color}` : i < phaseIndex ? 'text-white/30' : 'text-white/10'
+                    }`}>
+                    <span>{p.short}</span>
+                    {i < PHASES.length - 1 && <ChevronRight size={10} className="opacity-40" />}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Current AI question */}
+            <div className={`rounded-2xl p-6 border ${currentPhase.bg} ${currentPhase.border} relative overflow-hidden`}>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan/[0.03] rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+              <div className="flex items-center gap-2 mb-4">
+                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${currentPhase.bg} ${currentPhase.border} ${currentPhase.color}`}>
+                  {currentPhase.label}
+                </span>
+                {isAiProcessing && (
+                  <span className="flex items-center gap-1.5 text-[10px] text-white/30 font-medium">
+                    <div className="w-3 h-3 border border-white/20 border-t-white/50 rounded-full animate-spin" />
+                    Thinking...
+                  </span>
+                )}
+              </div>
+              <p className="text-[16px] md:text-[18px] font-medium leading-relaxed text-white/90">
+                {hasStarted ? lastAiMessage : "Your interview will start here. The AI interviewer will guide you through each section."}
+              </p>
+            </div>
+
+            {/* Action buttons */}
+            {hasStarted && (
+              <div className="flex flex-wrap gap-3">
+                <button onClick={repeatQuestion} disabled={isAiProcessing}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-[12px] font-semibold text-white/50 hover:text-white/80 transition-all disabled:opacity-30">
+                  <RotateCcw size={13} /> Repeat
+                </button>
+                <button id="autoSubmit" onClick={handleSubmitAnswer}
+                  disabled={isAiProcessing || (!transcript.trim() && !liveTranscript.trim())}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-brand-cyan/10 hover:bg-brand-cyan/20 border border-brand-cyan/20 text-brand-cyan rounded-xl text-[12px] font-semibold transition-all disabled:opacity-30">
+                  <CheckCircle2 size={13} />
+                  {isAiProcessing ? 'Processing...' : 'Submit Answer'}
+                </button>
+                {phaseIndex < PHASES.length - 1 && questionCount >= 2 && (
+                  <button onClick={handleNextPhase} disabled={isAiProcessing}
+                    className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-[12px] font-semibold transition-all disabled:opacity-30 ${PHASES[phaseIndex + 1].bg} ${PHASES[phaseIndex + 1].border} ${PHASES[phaseIndex + 1].color}`}>
+                    Next: {PHASES[phaseIndex + 1].label}
+                    <ChevronRight size={13} />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Analysis Panel ── */}
+          <div className="border-t border-white/[0.04] p-5 md:p-6 space-y-4 bg-[#0a0b0d] shrink-0">
+            <div className="flex items-center gap-2 mb-1">
+              <BarChart3 size={13} className="text-white/20" />
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Session Stats</span>
+            </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-3 text-center">
+                <p className="text-[18px] font-bold text-white">{questionCount}</p>
+                <p className="text-[9px] font-semibold text-white/25 uppercase tracking-wider mt-0.5">Questions</p>
+              </div>
+              <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-3 text-center">
+                <p className="text-[18px] font-bold text-white">{fillerCount.toString().padStart(2, '0')}</p>
+                <p className="text-[9px] font-semibold text-white/25 uppercase tracking-wider mt-0.5">Fillers</p>
+              </div>
+              <div className={`border rounded-xl p-3 text-center ${currentPhase.bg} ${currentPhase.border}`}>
+                <p className={`text-[11px] font-bold ${currentPhase.color} leading-tight`}>{currentPhase.short}</p>
+                <p className={`text-[9px] font-semibold uppercase tracking-wider mt-0.5 ${currentPhase.color} opacity-70`}>Phase</p>
+              </div>
+            </div>
+
+            {/* Hint */}
+            <div className="p-3.5 bg-white/[0.02] border border-white/[0.05] rounded-xl">
+              <p className="text-[11px] text-white/35 leading-relaxed">
+                {!hasStarted ? 'Complete all questions to see your session summary.' :
+                  fillerCount > 5 ? 'Reduce filler words like "um" and "like" for a cleaner delivery.' :
+                    phaseIndex === 0 ? 'Keep your introduction under 2 minutes and speak clearly.' :
+                      phaseIndex === 1 ? 'Mention specific technologies and your proficiency level.' :
+                        phaseIndex === 2 ? 'Use STAR — Situation, Task, Action, Result.' :
+                          phaseIndex === 3 ? 'Focus on your key contributions and outcomes.' :
+                            phaseIndex === 4 ? 'Mention the skills each certification helped you develop.' :
+                              'Be direct and genuine. HR questions have no wrong answers.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Footer Controls ── */}
+      <footer className="h-16 bg-[#0a0b0d] border-t border-white/[0.04] flex items-center justify-between px-5 md:px-8 shrink-0">
+        <div className="flex items-center gap-2 text-white/30 w-24">
+          <Clock size={13} className="text-brand-cyan/50" />
+          <span className="text-[12px] font-semibold font-mono">{fmt(timeLeft)}</span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button onClick={() => setMicOn(!micOn)} title={micOn ? 'Mute mic' : 'Unmute mic'}
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${micOn ? 'bg-white/[0.06] hover:bg-white/[0.12] text-white/60' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+              }`}>
+            {micOn ? <Mic size={18} /> : <MicOff size={18} />}
           </button>
 
-          <button
-            onClick={() => setVideoOn(!videoOn)}
-            className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all ${videoOn ? 'bg-white/10 hover:bg-white/20 text-white shadow-sm' : 'bg-red-500/20 text-red-500 border border-red-500/30'}`}
-            title="Toggle Camera"
-          >
-            {videoOn ? <Video size={22} /> : <VideoOff size={22} />}
+          <button onClick={() => setVideoOn(!videoOn)} title={videoOn ? 'Turn off camera' : 'Turn on camera'}
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${videoOn ? 'bg-white/[0.06] hover:bg-white/[0.12] text-white/60' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+              }`}>
+            {videoOn ? <Video size={18} /> : <VideoOff size={18} />}
           </button>
 
           {hasStarted && (
-            <button
-               onClick={() => window.location.href = '/dashboard'}
-               className="h-12 md:h-14 px-6 md:px-8 bg-red-500/90 hover:bg-red-500 text-white rounded-full flex items-center justify-center gap-2 font-bold transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] md:ml-4"
-               title="End Interview"
-            >
-               <PhoneOff size={20} />
-               <span className="hidden md:inline">End Session</span>
+            <button onClick={() => window.location.href = '/dashboard'}
+              className="h-11 px-5 bg-red-500/90 hover:bg-red-500 text-white rounded-full flex items-center gap-2 font-semibold text-[13px] transition-all shadow-[0_4px_16px_rgba(239,68,68,0.2)]">
+              <PhoneOff size={16} />
+              <span className="hidden sm:inline">End</span>
             </button>
           )}
         </div>
 
-        {/* Right: Settings (balances flex-between) */}
-        <div className="hidden md:flex items-center justify-end w-40">
-           <button className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors">
-              <Settings size={18} />
-           </button>
+        <div className="flex justify-end w-24">
+          <button className="w-9 h-9 rounded-full bg-white/[0.03] hover:bg-white/[0.07] flex items-center justify-center text-white/25 hover:text-white/50 transition-colors">
+            <Settings size={15} />
+          </button>
         </div>
       </footer>
     </div>

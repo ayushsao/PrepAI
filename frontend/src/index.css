@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Inter", ui-sans-serif, system-ui, sans-serif;
   --color-brand-cyan: #22d3ee;
   --color-brand-dark: #090a0c;
@@ -15,21 +15,24 @@
   }
 
   h4, h5, h6 {
-    @apply font-sans font-black tracking-widest uppercase text-xs text-white/40;
+    @apply font-sans font-semibold tracking-widest uppercase text-xs text-white/40;
   }
 
   p, span, li {
-    @apply font-sans tracking-tight leading-relaxed text-white/50;
+    @apply font-sans leading-relaxed text-white/50;
   }
 }
 
 body {
   @apply bg-brand-dark text-white font-sans antialiased text-[15px] selection:bg-brand-cyan selection:text-brand-dark;
-  cursor: none; /* Hide default cursor to use custom GSAP cursor */
+  cursor: default;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a, button, [role="button"], input, textarea, select {
-  cursor: none !important; /* Force hide over interactive elements */
+a, button, [role="button"] {
+  cursor: pointer;
 }
 
 /* Atmospheric Grain Overlay */
