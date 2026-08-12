@@ -521,7 +521,7 @@ export const Component = () => {
 
       // Define camera positions for each section
       const cameraPositions = [
-        { x: 0, y: 30, z: 300 },    // Section 0 - PrepAI
+        { x: 0, y: 30, z: 300 },    // Section 0 - PrepCode
         { x: 0, y: 40, z: -50 },     // Section 1 - PRACTICE
         { x: 0, y: 50, z: -700 }       // Section 2 - SUCCESS
       ];
@@ -591,7 +591,7 @@ export const Component = () => {
           style={{ opacity: currentSection === 0 ? 1 : 0 }}
         >
           <h1 ref={titleRef} className="hero-title text-5xl md:text-8xl lg:text-[10rem] font-bold tracking-tight uppercase leading-none mb-6 [text-shadow:0_10px_40px_rgba(0,0,0,0.5),0_2px_10px_rgba(0,0,0,1)]">
-            PrepAI
+            PrepCode
           </h1>
           
           <div ref={subtitleRef} className="hero-subtitle cosmos-subtitle text-lg md:text-2xl opacity-90 max-w-2xl font-medium drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">

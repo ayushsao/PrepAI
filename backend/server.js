@@ -478,7 +478,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 } else {
   app.get('/', (req, res) => {
-    res.send('PrepAI Backend API is running... (Development Mode)');
+    res.send('PrepCode Backend API is running... (Development Mode)');
   });
 }
 

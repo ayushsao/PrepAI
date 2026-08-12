@@ -52,7 +52,7 @@ const Sidebar = () => {
             <div className="w-10 h-10 bg-brand-cyan rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(0,255,255,0.2)]">
               <Layout className="w-6 h-6 text-brand-dark" />
             </div>
-            <span className="text-xl font-black tracking-tighter text-white">PrepAI</span>
+            <span className="text-xl font-black tracking-tighter text-white">PrepCode</span>
           </Link>
         </div>
 

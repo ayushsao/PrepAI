@@ -52,7 +52,7 @@ const Settings = () => {
         <header className="mb-8 md:mb-12">
            <h1 className="text-2xl md:text-4xl font-black tracking-tight leading-none uppercase tracking-widest text-white/90">System Configuration</h1>
            <p className="text-sm md:text-lg text-white/40 max-w-xl font-medium mt-2">
-             Tune your PrepAI experience for maximum architectural performance.
+             Tune your PrepCode experience for maximum architectural performance.
            </p>
         </header>
 
@@ -164,7 +164,7 @@ const Settings = () => {
                  <div className="bg-[#0a0b0d] border border-white/5 rounded-[40px] p-10 flex flex-col md:flex-row items-center justify-between gap-12 group">
                    <div className="space-y-4">
                      <h3 className="text-xl font-black">Multi-Factor Authentication</h3>
-                     <p className="text-sm text-white/30 leading-relaxed max-w-sm">Secure your PrepAI environment with an additional verification layer for all interview logic updates.</p>
+                     <p className="text-sm text-white/30 leading-relaxed max-w-sm">Secure your PrepCode environment with an additional verification layer for all interview logic updates.</p>
                    </div>
                    <button className="px-8 py-4 bg-[#1b232e] text-blue-400 border border-blue-400/20 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-400 hover:text-white transition-all">Enable MFA Now</button>
                  </div>

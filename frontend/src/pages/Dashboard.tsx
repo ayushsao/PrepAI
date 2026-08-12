@@ -412,8 +412,8 @@ const Dashboard = () => {
 
           {/* Footer */}
           <footer className="mt-10 py-6 border-t border-white/[0.04] flex justify-between items-center">
-            <p className="text-[11px] font-medium text-white/20">PrepAI · Interview Preparation Platform</p>
-            <p className="text-[11px] font-medium text-white/15">© {new Date().getFullYear()} PrepAI</p>
+            <p className="text-[11px] font-medium text-white/20">PrepCode · Interview Preparation Platform</p>
+            <p className="text-[11px] font-medium text-white/15">© {new Date().getFullYear()} PrepCode</p>
           </footer>
         </div>
       </main>

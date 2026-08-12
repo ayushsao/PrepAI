@@ -32,8 +32,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // ── Bootstrap: restore session from localStorage ──
   useEffect(() => {
-    const storedToken = localStorage.getItem('prepai_token');
-    const storedUser  = localStorage.getItem('prepai_user');
+    const storedToken = localStorage.getItem('prepcode_token');
+    const storedUser  = localStorage.getItem('prepcode_user');
     if (storedToken && storedUser) {
       try {
         setToken(storedToken);
@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .then(data => {
             if (data) {
               setUser(data);
-              localStorage.setItem('prepai_user', JSON.stringify(data));
+              localStorage.setItem('prepcode_user', JSON.stringify(data));
             } else {
               // Token expired / invalid
               _clear();
@@ -61,15 +61,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   function _persist(u: User, t: string) {
     setUser(u);
     setToken(t);
-    localStorage.setItem('prepai_token', t);
-    localStorage.setItem('prepai_user', JSON.stringify(u));
+    localStorage.setItem('prepcode_token', t);
+    localStorage.setItem('prepcode_user', JSON.stringify(u));
   }
 
   function _clear() {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('prepai_token');
-    localStorage.removeItem('prepai_user');
+    localStorage.removeItem('prepcode_token');
+    localStorage.removeItem('prepcode_user');
   }
 
   const login = useCallback(async (email: string, password: string) => {
@@ -112,11 +112,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(prev => {
       if (!prev) return prev;
       const updated = { ...prev, ...data };
-      localStorage.setItem('prepai_user', JSON.stringify(updated));
+      localStorage.setItem('prepcode_user', JSON.stringify(updated));
       return updated;
     });
 
-    const storedToken = localStorage.getItem('prepai_token');
+    const storedToken = localStorage.getItem('prepcode_token');
     if (storedToken) {
       try {
         const res = await fetch(`${API}/me`, {
@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res.ok) {
            const updatedServerUser = await res.json();
            setUser(updatedServerUser);
-           localStorage.setItem('prepai_user', JSON.stringify(updatedServerUser));
+           localStorage.setItem('prepcode_user', JSON.stringify(updatedServerUser));
         }
       } catch (err) {
         console.error('Failed to sync profile update to server', err);

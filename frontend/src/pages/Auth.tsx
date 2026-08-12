@@ -79,7 +79,7 @@ const Auth = () => {
           <div className="w-10 h-10 bg-brand-cyan rounded-xl flex items-center justify-center shadow-[0_0_25px_rgba(0,255,255,0.3)] group-hover:rotate-12 transition-all">
             <Layout className="w-6 h-6 text-brand-dark" />
           </div>
-          <span className="text-2xl font-black tracking-tighter">PrepAI</span>
+          <span className="text-2xl font-black tracking-tighter">PrepCode</span>
         </Link>
 
         <motion.div
@@ -94,7 +94,7 @@ const Auth = () => {
               {isLogin ? 'Welcome Back' : 'Create Account'}
             </h1>
             <p className="text-xs font-bold uppercase tracking-widest text-white/30">
-              {isLogin ? 'Sign in to your PrepAI account' : 'Start your AI interview journey'}
+              {isLogin ? 'Sign in to your PrepCode account' : 'Start your AI interview journey'}
             </p>
           </div>
 
@@ -228,7 +228,7 @@ const Auth = () => {
       </div>
 
       <footer className="absolute bottom-6 inset-x-0 text-center opacity-10 flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] pointer-events-none">
-        <span>© 2026 PREPAI</span>
+        <span>© 2026 PREPCODE</span>
         <div className="w-1 h-1 rounded-full bg-white" />
         <span>Architect: Ayush Kumar Sao</span>
       </footer>

@@ -10,7 +10,7 @@ export const protect = (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'prepai_secret_2026');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'prepcode_secret_2026');
     req.userId = decoded.id;
     next();
   } catch (err) {

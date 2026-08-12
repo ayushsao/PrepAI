@@ -24,7 +24,7 @@ const Pricing = () => {
       return;
     }
     if (plan.price === 'Custom') {
-      window.location.href = 'mailto:sales@prepai.com';
+      window.location.href = 'mailto:sales@prepcode.com';
       return;
     }
 
@@ -88,7 +88,7 @@ const Pricing = () => {
           <div className="w-8 h-8 bg-brand-cyan rounded-lg flex items-center justify-center shadow-lg">
             <Star className="w-5 h-5 text-brand-dark" />
           </div>
-          <span className="text-xl font-black tracking-tighter">PrepAI</span>
+          <span className="text-xl font-black tracking-tighter">PrepCode</span>
         </Link>
         <Link to="/dashboard" className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors">Return to System</Link>
       </header>
@@ -180,7 +180,7 @@ const Pricing = () => {
         <section className="mt-40 grid lg:grid-cols-2 gap-20">
            <div className="space-y-8">
              <h2 className="text-4xl font-black tracking-tight leading-none uppercase">Trusted by <br /> <span className="text-brand-cyan italic">Architects.</span></h2>
-             <p className="text-sm text-white/30 leading-relaxed max-w-sm">Join over 12k+ engineers already training in PrepAI sessions to land roles at Google, Stripe, and Vercel.</p>
+             <p className="text-sm text-white/30 leading-relaxed max-w-sm">Join over 12k+ engineers already training in PrepCode sessions to land roles at Google, Stripe, and Vercel.</p>
            </div>
            <div className="space-y-8">
               {[
@@ -197,7 +197,7 @@ const Pricing = () => {
 
         <footer className="mt-32 pt-12 border-t border-white/5 w-full flex justify-between opacity-20">
            <div className="text-[10px] font-black uppercase tracking-[0.3em]">Authorized Protocol.</div>
-           <div className="text-[10px] font-black tracking-[0.3em]">© 2026 PREPAI.</div>
+           <div className="text-[10px] font-black tracking-[0.3em]">© 2026 PREPCODE.</div>
         </footer>
       </main>
     </div>

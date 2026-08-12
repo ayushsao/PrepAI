@@ -496,7 +496,7 @@ const CodingLab = () => {
             <div className="w-7 h-7 bg-brand-cyan rounded flex items-center justify-center">
               <Layout className="w-4 h-4 text-brand-dark" />
             </div>
-            <span className="text-lg font-bold tracking-tight">PrepAI</span>
+            <span className="text-lg font-bold tracking-tight">PrepCode</span>
           </Link>
           <nav className="items-center gap-6 hidden md:flex">
             <Link to="/dashboard" className="text-xs font-bold text-white/40 hover:text-white transition-colors uppercase tracking-widest">Dashboard</Link>

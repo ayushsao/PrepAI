@@ -30,7 +30,7 @@ export function ParticleSection() {
            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand-cyan/10 to-transparent" />
            
            <ParticleTextEffect 
-             words={["PREPAI", "AYUSH KUMAR", "BUILD WITH CARE", "FUTURE"]} 
+             words={["PREPCODE", "AYUSH KUMAR", "BUILD WITH CARE", "FUTURE"]} 
              className="relative z-10"
            />
            

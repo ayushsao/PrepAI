@@ -120,7 +120,7 @@ interface ParticleTextEffectProps {
   className?: string;
 }
 
-const DEFAULT_WORDS = ["PREPAI", "ARCHITECT", "AI POWERED", "SCALEUP"];
+const DEFAULT_WORDS = ["PREPCODE", "ARCHITECT", "AI POWERED", "SCALEUP"];
 
 export function ParticleTextEffect({ words = DEFAULT_WORDS, className = "" }: ParticleTextEffectProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

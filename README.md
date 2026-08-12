@@ -1,6 +1,6 @@
-# PrepAI - AI Interview Preparation Platform
+# PrepCode - AI Interview Preparation Platform
 
-PrepAI is a full-stack interview preparation platform that simulates real interview pressure using AI-driven technical conversations, coding practice, resume-aware questioning, and performance analytics. It helps candidates prepare for technical, behavioral, and role-specific interviews through interactive sessions and post-session evaluation.
+PrepCode is a full-stack interview preparation platform that simulates real interview pressure using AI-driven technical conversations, coding practice, resume-aware questioning, and performance analytics. It helps candidates prepare for technical, behavioral, and role-specific interviews through interactive sessions and post-session evaluation.
 
 ## Project Overview
 
@@ -70,7 +70,7 @@ The platform combines:
 ## Repository Structure
 
 ```
-prepai---ai-interview-preparation/
+prepcode---ai-interview-preparation/
 	backend/
 		config/
 		controllers/

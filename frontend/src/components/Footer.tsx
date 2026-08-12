@@ -9,10 +9,10 @@ const Footer = () => (
           <div className="w-6 h-6 bg-brand-cyan rounded flex items-center justify-center">
             <Layout className="w-4 h-4 text-brand-dark" />
           </div>
-          <span className="text-lg font-bold tracking-tight">PrepAI</span>
+          <span className="text-lg font-bold tracking-tight">PrepCode</span>
         </Link>
         <p className="text-[10px] uppercase tracking-widest font-black text-white/20">
-          © 2026 PREPAI. | ARCHITECT: AYUSH KUMAR SAO
+          © 2026 PREPCODE. | ARCHITECT: AYUSH KUMAR SAO
         </p>
       </div>
       

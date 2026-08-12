@@ -14,7 +14,7 @@ const Navbar = () => {
           <div className="w-8 h-8 bg-brand-cyan rounded-lg flex items-center justify-center">
             <Layout className="w-5 h-5 text-brand-dark" />
           </div>
-          <span className="text-xl font-bold tracking-tight">PrepAI</span>
+          <span className="text-xl font-bold tracking-tight">PrepCode</span>
         </Link>
         
         <div className="hidden md:flex items-center gap-8">

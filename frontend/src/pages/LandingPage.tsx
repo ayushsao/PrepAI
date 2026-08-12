@@ -132,7 +132,7 @@ const SessionPreview = () => (
             <div className="w-4 h-4 bg-brand-cyan rounded flex items-center justify-center">
               <Layout className="w-2.5 h-2.5 text-brand-dark" />
             </div>
-            <span className="text-xs font-bold tracking-tight">PrepAI</span>
+            <span className="text-xs font-bold tracking-tight">PrepCode</span>
           </div>
           <div className="text-[10px] uppercase tracking-widest font-bold text-white/40">
             Interview Session #4802 • Active
@@ -323,7 +323,7 @@ const Features = () => {
   );
 };
 
-const AboutPrepAI = () => (
+const AboutPrepCode = () => (
   <section id="about" className="px-6 py-24 bg-brand-card/50 border-t border-b border-white/5 relative overflow-hidden">
     <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-cyan/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
     <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 pointer-events-none" />
@@ -344,7 +344,7 @@ const AboutPrepAI = () => (
           </div>
 
           <p className="text-lg text-white/60 leading-relaxed font-medium">
-            PrepAI was built with a singular vision: to democratize interview preparation.
+            PrepCode was built with a singular vision: to democratize interview preparation.
             We noticed that the barrier between a great candidate and a great job wasn't always skill—it was simply the lack of realistic, high-pressure practice.
           </p>
 
@@ -478,7 +478,7 @@ const LandingPage = () => {
       <TextMarqueeSection />
       <ParallaxComponent />
       <SessionPreview />
-      <AboutPrepAI />
+      <AboutPrepCode />
       <Features />
       <RadarEffectDemo />
       <SpiralSection />

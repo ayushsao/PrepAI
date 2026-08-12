@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 // Generate Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'prepai_secret_2026', {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'prepcode_secret_2026', {
     expiresIn: '30d',
   });
 };

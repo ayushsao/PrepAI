@@ -224,7 +224,7 @@ const InterviewSession = () => {
     try {
       const res = await fetch(apiUrl('/upload-resume'), {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token || localStorage.getItem('prepai_token')}` },
+        headers: { Authorization: `Bearer ${token || localStorage.getItem('prepcode_token')}` },
         body: fd,
       });
       const data = await res.json();
@@ -452,7 +452,7 @@ const InterviewSession = () => {
       {/* ── Navbar ── */}
       <header className="h-14 border-b border-white/[0.04] bg-[#0a0b0d] flex items-center justify-between px-5 md:px-8 shrink-0 z-50">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-[15px] font-bold tracking-tight">PrepAI</Link>
+          <Link to="/" className="text-[15px] font-bold tracking-tight">PrepCode</Link>
         </div>
 
         <div className="flex items-center gap-3">
