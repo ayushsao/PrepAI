@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Layout, LogOut, Menu, X } from 'lucide-react';
+import { Terminal, LogOut, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -11,12 +11,12 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#090a0c]/90 backdrop-blur-md border-b border-white/5">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-brand-cyan rounded-lg flex items-center justify-center">
-            <Layout className="w-5 h-5 text-brand-dark" />
+          <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#090a0c] border-2 border-brand-cyan shadow-[0_0_15px_rgba(132,204,22,0.15)]">
+            <Terminal className="w-4 h-4 text-brand-cyan stroke-[3]" />
           </div>
-          <span className="text-xl font-bold tracking-tight">PrepCode</span>
+          <span className="text-xl font-black tracking-tight">PrepCode</span>
         </Link>
-        
+
         <div className="hidden md:flex items-center gap-8">
           <Link to="/" className="text-sm font-medium text-white hover:text-white transition-colors nav-link-glow">Home</Link>
           <Link to="/dashboard" className="text-sm font-medium text-white/60 hover:text-white transition-colors nav-link-glow">Dashboard</Link>
@@ -27,7 +27,7 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-6">
           {isAuthenticated ? (
-            <button 
+            <button
               onClick={logout}
               className="flex items-center gap-2 text-sm font-medium text-white/60 hover:text-red-400 transition-colors"
             >
@@ -44,7 +44,7 @@ const Navbar = () => {
           )}
         </div>
 
-        <button 
+        <button
           className="md:hidden p-2 text-white/60 hover:text-white transition-colors z-50"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
@@ -64,7 +64,7 @@ const Navbar = () => {
           </nav>
           <div className="pt-4 border-t border-white/5 flex flex-col gap-4">
             {isAuthenticated ? (
-              <button 
+              <button
                 onClick={() => { logout(); setMobileMenuOpen(false); }}
                 className="flex items-center gap-2 text-lg font-medium text-white/60 hover:text-red-400 transition-colors"
               >

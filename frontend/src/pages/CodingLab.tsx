@@ -506,7 +506,7 @@ const CodingLab = () => {
         </div>
         
         <div className="flex items-center gap-2 md:gap-4 w-full md:w-auto justify-between md:justify-end overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-2 bg-brand-cyan/10 border border-brand-cyan/20 px-3 md:px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(0,255,255,0.1)] shrink-0">
+          <div className="flex items-center gap-2 bg-brand-cyan/10 border border-brand-cyan/20 px-3 md:px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(132, 204, 22,0.1)] shrink-0">
             <Clock className="w-3.5 h-3.5 text-brand-cyan" />
             <span className="text-sm font-mono font-bold text-brand-cyan tracking-wider">{formatTime(timeLeft)}</span>
           </div>
@@ -880,7 +880,7 @@ const CodingLab = () => {
                             key={tc.id} 
                             onClick={() => setSelectedCase(idx)}
                             className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                              selectedCase === idx ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/40 scale-105 shadow-[0_0_15px_rgba(0,255,255,0.1)]' : 'bg-white/5 text-white/30 hover:bg-white/10'
+                              selectedCase === idx ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/40 scale-105 shadow-[0_0_15px_rgba(132, 204, 22,0.1)]' : 'bg-white/5 text-white/30 hover:bg-white/10'
                             }`}
                           >
                             Case {tc.id}
@@ -953,7 +953,7 @@ const CodingLab = () => {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-[#0f0f12] border border-brand-cyan/30 rounded-3xl p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(34,211,238,0.15)] relative overflow-hidden"
+              className="bg-[#0f0f12] border border-brand-cyan/30 rounded-3xl p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(132, 204, 22,0.15)] relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-cyan/0 via-brand-cyan to-brand-cyan/0" />
               
@@ -978,7 +978,7 @@ const CodingLab = () => {
                     setShowSuccessModal(false);
                     setView('questions');
                   }}
-                  className="flex-1 py-3 bg-brand-cyan hover:bg-brand-cyan/90 text-brand-dark rounded-xl font-black transition-all text-sm shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+                  className="flex-1 py-3 bg-brand-cyan hover:bg-brand-cyan/90 text-brand-dark rounded-xl font-black transition-all text-sm shadow-[0_0_15px_rgba(132, 204, 22,0.2)]"
                 >
                   Next Problem
                 </button>

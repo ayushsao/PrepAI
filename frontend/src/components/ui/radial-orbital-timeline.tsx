@@ -228,13 +228,13 @@ export default function RadialOrbitalTimeline({
                   border-2 
                   ${
                     isExpanded
-                      ? "border-brand-cyan shadow-[0_0_15px_rgba(34,211,238,0.5)]"
+                      ? "border-brand-cyan shadow-[0_0_15px_rgba(132, 204, 22,0.5)]"
                       : isRelated
                       ? "border-brand-cyan animate-pulse"
                       : "border-brand-cyan/40"
                   }
                   transition-all duration-300 transform
-                  ${isExpanded ? "scale-150" : "hover:scale-110 hover:border-brand-cyan hover:shadow-[0_0_10px_rgba(34,211,238,0.3)]"}
+                  ${isExpanded ? "scale-150" : "hover:scale-110 hover:border-brand-cyan hover:shadow-[0_0_10px_rgba(132, 204, 22,0.3)]"}
                 `}
                 >
                   <Icon size={16} />

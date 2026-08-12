@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import { Loader2 } from 'lucide-react';
 import { AuthProvider, useAuth } from './hooks/useAuth';
-import { CustomCursor } from './components/ui/custom-cursor';
+
 
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -28,10 +28,10 @@ const PageLoader = () => (
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
-  
+
   if (isLoading) return <PageLoader />;
   if (!isAuthenticated) return <Navigate to="/auth" />;
-  
+
   return <>{children}</>;
 };
 
@@ -39,64 +39,63 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CustomCursor />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/pricing" element={<Pricing />} />
-            
+
             <Route path="/" element={<MainLayout />}>
               <Route index element={<LandingPage />} />
             </Route>
-            
-            <Route 
-              path="/dashboard" 
+
+            <Route
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/interview" 
+            <Route
+              path="/interview"
               element={
                 <ProtectedRoute>
                   <InterviewSession />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/analytics" 
+            <Route
+              path="/analytics"
               element={
                 <ProtectedRoute>
                   <Analytics />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/feedback" 
+            <Route
+              path="/feedback"
               element={
                 <ProtectedRoute>
                   <Feedback />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/settings" 
+            <Route
+              path="/settings"
               element={
                 <ProtectedRoute>
                   <Settings />
                 </ProtectedRoute>
-              } 
+              }
             />
-            
-            <Route 
-              path="/coding-lab" 
+
+            <Route
+              path="/coding-lab"
               element={
                 <ProtectedRoute>
                   <CodingLab />
                 </ProtectedRoute>
-              } 
+              }
             />
 
             {/* Fallback */}

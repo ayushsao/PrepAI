@@ -432,7 +432,7 @@ const InterviewSession = () => {
               {/* Buttons */}
               <div className="flex gap-3 w-full">
                 <button onClick={() => window.location.href = '/dashboard'}
-                  className="flex-1 py-3.5 bg-brand-cyan text-[#08090b] rounded-xl font-bold text-[13px] hover:brightness-110 transition-all shadow-[0_8px_24px_rgba(34,211,238,0.25)]">
+                  className="flex-1 py-3.5 bg-brand-cyan text-[#08090b] rounded-xl font-bold text-[13px] hover:brightness-110 transition-all shadow-[0_8px_24px_rgba(132, 204, 22,0.25)]">
                   View Dashboard
                 </button>
                 <button onClick={() => window.location.reload()}
@@ -561,7 +561,7 @@ const InterviewSession = () => {
                   <input type="file" accept="application/pdf" onChange={handleFileUpload}
                     disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   <div className={`flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-semibold text-[13px] transition-all ${isUploading ? 'bg-white/10 text-white/40' :
-                    'bg-brand-cyan text-[#08090b] hover:brightness-110 shadow-[0_8px_24px_rgba(34,211,238,0.3)]'
+                    'bg-brand-cyan text-[#08090b] hover:brightness-110 shadow-[0_8px_24px_rgba(132, 204, 22,0.3)]'
                     }`}>
                     {isUploading ? <><div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />Analyzing...</> :
                       <><Upload size={15} /> Choose PDF</>}
@@ -593,7 +593,7 @@ const InterviewSession = () => {
                   ))}
                 </div>
                 <button onClick={handleStart}
-                  className="flex items-center gap-3 px-10 py-4 bg-brand-cyan text-[#08090b] rounded-xl font-bold text-[15px] shadow-[0_8px_30px_rgba(34,211,238,0.35)] hover:brightness-110 hover:scale-[1.02] transition-all">
+                  className="flex items-center gap-3 px-10 py-4 bg-brand-cyan text-[#08090b] rounded-xl font-bold text-[15px] shadow-[0_8px_30px_rgba(132, 204, 22,0.35)] hover:brightness-110 hover:scale-[1.02] transition-all">
                   <Play size={18} className="fill-current" /> Start Interview
                 </button>
               </motion.div>

@@ -10,7 +10,8 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  Terminal
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -49,8 +50,8 @@ const Sidebar = () => {
       <aside className={`w-72 border-r border-white/[0.03] bg-[#0a0b0d] flex-col shrink-0 p-8 shadow-2xl z-50 fixed inset-y-0 left-0 lg:relative lg:flex transition-transform duration-300 ${isOpen ? 'translate-x-0 flex' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="flex items-center gap-3 mb-10 px-2 transition-transform hover:scale-[1.02]">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-brand-cyan rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(0,255,255,0.2)]">
-              <Layout className="w-6 h-6 text-brand-dark" />
+            <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#0a0b0d] border-2 border-brand-cyan shadow-[0_0_15px_rgba(132,204,22,0.15)]">
+              <Terminal className="w-5 h-5 text-brand-cyan stroke-[3]" />
             </div>
             <span className="text-xl font-black tracking-tighter text-white">PrepCode</span>
           </Link>
@@ -78,18 +79,18 @@ const Sidebar = () => {
                 key={i}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group ${isActive ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20 shadow-[0_0_20px_rgba(0,255,255,0.05)]' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group ${isActive ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20 shadow-[0_0_20px_rgba(132, 204, 22,0.05)]' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
               >
                 <item.icon size={20} className={isActive ? 'text-brand-cyan' : 'group-hover:text-brand-cyan transition-colors'} />
                 <span className="text-sm font-bold tracking-tight">{item.label}</span>
-                {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-cyan shadow-[0_0_8px_rgba(0,255,255,0.8)]" />}
+                {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-cyan shadow-[0_0_8px_rgba(132, 204, 22,0.8)]" />}
               </Link>
             );
           })}
         </nav>
 
         <div className="pt-8 border-t border-white/5 space-y-4">
-          <Link to="/interview" onClick={() => setIsOpen(false)} className="w-full py-4 bg-brand-cyan text-brand-dark rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_10px_30px_rgba(34,211,238,0.2)]">
+          <Link to="/interview" onClick={() => setIsOpen(false)} className="w-full py-4 bg-brand-cyan text-brand-dark rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_10px_30px_rgba(132, 204, 22,0.2)]">
             <Plus size={18} strokeWidth={3} />
             New Interview
           </Link>

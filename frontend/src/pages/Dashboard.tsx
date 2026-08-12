@@ -172,7 +172,7 @@ const Dashboard = () => {
               </Link>
               <Link
                 to="/interview"
-                className="flex-1 xl:flex-none px-6 py-3 bg-brand-cyan text-[#08090b] rounded-xl text-[12px] font-bold tracking-wide transition-all hover:brightness-110 shadow-[0_8px_24px_rgba(34,211,238,0.2)] flex items-center justify-center gap-2"
+                className="flex-1 xl:flex-none px-6 py-3 bg-brand-cyan text-[#08090b] rounded-xl text-[12px] font-bold tracking-wide transition-all hover:brightness-110 shadow-[0_8px_24px_rgba(132, 204, 22,0.2)] flex items-center justify-center gap-2"
               >
                 <Plus size={14} strokeWidth={3} />
                 New Interview

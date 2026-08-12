@@ -104,10 +104,10 @@ export function ParallaxComponent() {
 
           {/* LAYER 4: Fastest extreme-foreground items */}
           <div data-parallax-layer="4" className="absolute bottom-[-10%] inset-x-0 h-full w-full pointer-events-none will-change-transform">
-             <Cpu className="absolute bottom-[35%] right-[25%] w-24 h-24 text-brand-cyan/50 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]" strokeWidth={1.5} />
+             <Cpu className="absolute bottom-[35%] right-[25%] w-24 h-24 text-brand-cyan/50 drop-shadow-[0_0_15px_rgba(132, 204, 22,0.5)]" strokeWidth={1.5} />
              <Brain className="absolute top-[20%] right-[30%] w-12 h-12 text-blue-300/40 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" strokeWidth={1.5} />
              <Code2 className="absolute bottom-[40%] left-[15%] w-20 h-20 text-white/50 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" strokeWidth={1.5} />
-             <Sparkles className="absolute top-[45%] left-[35%] w-8 h-8 text-brand-cyan/60 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse" strokeWidth={2} />
+             <Sparkles className="absolute top-[45%] left-[35%] w-8 h-8 text-brand-cyan/60 drop-shadow-[0_0_10px_rgba(132, 204, 22,0.8)] animate-pulse" strokeWidth={2} />
           </div>
         </div>
 

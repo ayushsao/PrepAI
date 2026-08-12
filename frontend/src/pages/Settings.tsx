@@ -86,7 +86,7 @@ const Settings = () => {
                    
                    <div className="relative z-10">
                      <div className="flex items-center gap-8 mb-12">
-                       <div className="w-24 h-24 rounded-[32px] overflow-hidden border-2 border-brand-cyan/30 shadow-[0_0_30px_rgba(0,255,255,0.1)]">
+                       <div className="w-24 h-24 rounded-[32px] overflow-hidden border-2 border-brand-cyan/30 shadow-[0_0_30px_rgba(132, 204, 22,0.1)]">
                          <img 
                            src={currentAvatar}
                            alt={user?.name}
@@ -150,7 +150,7 @@ const Settings = () => {
 
                 <div className="flex justify-end gap-6 pt-8">
                    <button className="px-8 py-4 bg-white/5 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">Discard Changes</button>
-                   <button className="px-10 py-4 bg-brand-cyan text-brand-dark rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-[0_10px_30px_rgba(0,255,255,0.2)]">Synchronize Profile</button>
+                   <button className="px-10 py-4 bg-brand-cyan text-brand-dark rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-[0_10px_30px_rgba(132, 204, 22,0.2)]">Synchronize Profile</button>
                 </div>
               </motion.div>
             )}
@@ -208,7 +208,7 @@ const Settings = () => {
                          <span className="text-[10px] font-black uppercase tracking-widest text-white/20">AI will ask counter-questions faster</span>
                        </div>
                        <div className="w-12 h-6 bg-brand-cyan/20 rounded-full relative cursor-pointer">
-                         <div className="w-6 h-6 bg-brand-cyan rounded-full shadow-[0_0_10px_rgba(0,255,255,0.4)] absolute right-0 scale-110" />
+                         <div className="w-6 h-6 bg-brand-cyan rounded-full shadow-[0_0_10px_rgba(132, 204, 22,0.4)] absolute right-0 scale-110" />
                        </div>
                      </div>
 
@@ -218,7 +218,7 @@ const Settings = () => {
                          <span className="text-[10px] font-black uppercase tracking-widest text-white/20">Save all session transcripts</span>
                        </div>
                        <div className="w-12 h-6 bg-brand-cyan/20 rounded-full relative cursor-pointer">
-                         <div className="w-6 h-6 bg-brand-cyan rounded-full shadow-[0_0_10px_rgba(0,255,255,0.4)] absolute right-0 scale-110" />
+                         <div className="w-6 h-6 bg-brand-cyan rounded-full shadow-[0_0_10px_rgba(132, 204, 22,0.4)] absolute right-0 scale-110" />
                        </div>
                      </div>
 
@@ -253,7 +253,7 @@ const Settings = () => {
                        </div>
                        <p className="text-sm text-white/40 mt-2">Basic mock interviews and limited feedback.</p>
                      </div>
-                     <button className="px-8 py-4 bg-brand-cyan text-brand-dark rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-[0_10px_30px_rgba(0,255,255,0.2)]">Upgrade to Pro</button>
+                     <button className="px-8 py-4 bg-brand-cyan text-brand-dark rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-[0_10px_30px_rgba(132, 204, 22,0.2)]">Upgrade to Pro</button>
                    </div>
 
                    <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl flex items-center gap-6">

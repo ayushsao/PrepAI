@@ -62,7 +62,7 @@ const Auth = () => {
       {/* Background Flow Field */}
       <div className="absolute inset-0 z-0">
         <NeuralBackground 
-          color="#22d3ee" // brand-cyan
+          color="#84cc16" // brand-cyan
           scale={1}
           trailOpacity={0.15}
           speed={0.8}
@@ -76,7 +76,7 @@ const Auth = () => {
       <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-12 relative z-10">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 mb-10 transition-transform hover:scale-105 active:scale-95 group">
-          <div className="w-10 h-10 bg-brand-cyan rounded-xl flex items-center justify-center shadow-[0_0_25px_rgba(0,255,255,0.3)] group-hover:rotate-12 transition-all">
+          <div className="w-10 h-10 bg-brand-cyan rounded-xl flex items-center justify-center shadow-[0_0_25px_rgba(132, 204, 22,0.3)] group-hover:rotate-12 transition-all">
             <Layout className="w-6 h-6 text-brand-dark" />
           </div>
           <span className="text-2xl font-black tracking-tighter">PrepCode</span>
@@ -202,7 +202,7 @@ const Auth = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-5 bg-brand-cyan text-brand-dark rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_10px_40px_rgba(0,255,255,0.2)] glow-button disabled:opacity-60 disabled:pointer-events-none"
+              className="w-full py-5 bg-brand-cyan text-brand-dark rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_10px_40px_rgba(132, 204, 22,0.2)] glow-button disabled:opacity-60 disabled:pointer-events-none"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

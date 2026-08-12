@@ -134,7 +134,7 @@ const Pricing = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className={`bg-[#0a0b0d] border rounded-[40px] p-10 flex flex-col shadow-2xl relative overflow-hidden group transition-all duration-500 hover:-translate-y-2 ${plan.highlight ? 'border-brand-cyan/40 shadow-[0_30px_60px_rgba(0,255,255,0.05)]' : 'border-white/5 hover:border-white/10'}`}
+              className={`bg-[#0a0b0d] border rounded-[40px] p-10 flex flex-col shadow-2xl relative overflow-hidden group transition-all duration-500 hover:-translate-y-2 ${plan.highlight ? 'border-brand-cyan/40 shadow-[0_30px_60px_rgba(132, 204, 22,0.05)]' : 'border-white/5 hover:border-white/10'}`}
             >
               {plan.highlight && (
                  <div className="absolute top-0 right-0 px-8 py-2 bg-brand-cyan text-brand-dark text-[9px] font-black uppercase tracking-widest translate-x-4 translate-y-6 rotate-45 shadow-xl">
@@ -166,7 +166,7 @@ const Pricing = () => {
 
               <button 
                  onClick={() => handlePayment(plan)}
-                 className={`w-full py-5 rounded-[24px] font-black text-xs uppercase tracking-widest transition-all relative overflow-hidden group/btn flex items-center justify-center ${plan.highlight ? 'bg-brand-cyan text-brand-dark shadow-[0_10px_30px_rgba(0,255,255,0.2)]' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10 hover:text-white'}`}>
+                 className={`w-full py-5 rounded-[24px] font-black text-xs uppercase tracking-widest transition-all relative overflow-hidden group/btn flex items-center justify-center ${plan.highlight ? 'bg-brand-cyan text-brand-dark shadow-[0_10px_30px_rgba(132, 204, 22,0.2)]' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10 hover:text-white'}`}>
                  <span className="relative z-10 flex items-center justify-center gap-3">
                    {plan.cta}
                    <ArrowRight size={18} strokeWidth={3} className="transition-transform group-hover/btn:translate-x-1" />

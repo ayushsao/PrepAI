@@ -269,7 +269,7 @@ export function ParticleTextEffect({ words = DEFAULT_WORDS, className = "" }: Pa
       <canvas
         ref={canvasRef}
         className="max-w-full h-auto cursor-crosshair rounded-[40px]"
-        style={{ filter: "drop-shadow(0 0 20px rgba(34, 211, 238, 0.4)) drop-shadow(0 0 40px rgba(34, 211, 238, 0.2))" }}
+        style={{ filter: "drop-shadow(0 0 20px rgba(132, 204, 22, 0.4)) drop-shadow(0 0 40px rgba(132, 204, 22, 0.2))" }}
       />
     </div>
   );

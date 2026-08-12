@@ -32,7 +32,7 @@ export function Entropy({ className = "", size = 1200 }: EntropyProps) {
     updateSize();
     window.addEventListener('resize', updateSize);
 
-    const particleColor = '#22d3ee'; // Brand Cyan
+    const particleColor = '#84cc16'; // Brand Cyan
 
     class Particle {
       x: number;

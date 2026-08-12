@@ -16,7 +16,7 @@ const Feedback = () => {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-xl w-full text-center relative z-10"
         >
-          <div className="w-24 h-24 bg-brand-cyan/10 border border-brand-cyan/20 rounded-3xl mx-auto flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(34,211,238,0.1)]">
+          <div className="w-24 h-24 bg-brand-cyan/10 border border-brand-cyan/20 rounded-3xl mx-auto flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(132, 204, 22,0.1)]">
             <Wrench className="w-12 h-12 text-brand-cyan animate-pulse" />
           </div>
           

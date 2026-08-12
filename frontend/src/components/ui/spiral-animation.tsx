@@ -175,7 +175,7 @@ class AnimationController {
         ctx.rotate(-Math.PI * this.ease(t2, 2.7));
         this.drawTrail(t1);
         
-        ctx.fillStyle = '#22d3ee'; // Brand Cyan for a striking look
+        ctx.fillStyle = '#84cc16'; // Brand Cyan for a striking look
         for (const star of this.stars) {
             star.render(t1, this);
         }

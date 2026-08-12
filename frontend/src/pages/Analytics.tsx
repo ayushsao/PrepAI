@@ -137,7 +137,7 @@ const Analytics = () => {
                 <svg className="w-full h-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                    <defs>
                      <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
-                       <stop offset="0%" stopColor="rgb(34, 211, 238)" stopOpacity="0.3" />
+                       <stop offset="0%" stopColor="rgb(132, 204, 22)" stopOpacity="0.3" />
                        <stop offset="100%" stopColor="transparent" stopOpacity="0" />
                      </linearGradient>
                      <linearGradient id="baselineGradient" x1="0" y1="0" x2="0" y2="1">
@@ -176,7 +176,7 @@ const Analytics = () => {
                      animate={{ pathLength: 1 }}
                      transition={{ duration: 2, ease: "easeInOut" }}
                      d={targetPath}
-                     fill="none" stroke="rgb(34, 211, 238)" strokeWidth="3"
+                     fill="none" stroke="rgb(132, 204, 22)" strokeWidth="3"
                      vectorEffect="non-scaling-stroke"
                    />
 
@@ -187,7 +187,7 @@ const Analytics = () => {
 
                    {/* Target Nodes */}
                    {targetPoints.map((val, i) => (
-                      <circle key={`target-${i}`} cx={`${(i * 100) / (targetPoints.length - 1)}`} cy={`${val}`} r="4" fill="rgb(34, 211, 238)" className="shadow-[0_0_10px_rgba(34,211,238,0.8)]" vectorEffect="non-scaling-stroke" />
+                      <circle key={`target-${i}`} cx={`${(i * 100) / (targetPoints.length - 1)}`} cy={`${val}`} r="4" fill="rgb(132, 204, 22)" className="shadow-[0_0_10px_rgba(132, 204, 22,0.8)]" vectorEffect="non-scaling-stroke" />
                    ))}
                 </svg>
 
@@ -213,7 +213,7 @@ const Analytics = () => {
                            initial={{ width: 0 }}
                            animate={{ width: `${skill.score}%` }}
                            transition={{ duration: 1, delay: i * 0.1 }}
-                           className="h-full bg-brand-cyan shadow-[0_0_15px_rgba(0,255,255,0.3)]"
+                           className="h-full bg-brand-cyan shadow-[0_0_15px_rgba(132, 204, 22,0.3)]"
                          />
                       </div>
                     </div>

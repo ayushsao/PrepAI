@@ -53,7 +53,7 @@ const Hero = () => (
                 key={word}
                 initial={{ x: -20, rotate: -2 }}
                 animate={{ x: 0, rotate: i % 2 === 0 ? 1 : -1 }}
-                className="bg-white text-black px-3 py-1 md:px-6 md:py-3 shadow-[4px_4px_0px_#22d3ee]"
+                className="bg-white text-black px-3 py-1 md:px-6 md:py-3 shadow-[4px_4px_0px_#84cc16]"
               >
                 <h1 className="text-3xl md:text-6xl font-heading leading-none m-0">{word}</h1>
               </motion.div>
@@ -200,7 +200,7 @@ const SessionPreview = () => (
 
 const TextMarqueeSection = () => (
   <section className="py-24 overflow-hidden bg-[#08090b] border-t border-b border-white/5 relative flex flex-col gap-6">
-    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.05),transparent_50%)] pointer-events-none" />
+    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(132, 204, 22,0.05),transparent_50%)] pointer-events-none" />
 
     <div className="rotate-[-2deg] scale-110">
       <TextMarquee
@@ -378,7 +378,7 @@ const AboutPrepCode = () => (
           className="relative"
         >
           <div className="aspect-square max-w-[500px] mx-auto bg-gradient-to-tr from-brand-cyan/20 to-transparent rounded-[3rem] p-1 border border-white/10 shadow-2xl relative">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.1),transparent_70%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(132, 204, 22,0.1),transparent_70%)] pointer-events-none" />
             <div className="w-full h-full bg-[#0a0b0d] rounded-[2.8rem] overflow-hidden relative">
               <OrbitingSkills />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0d] via-transparent to-transparent pointer-events-none" />
