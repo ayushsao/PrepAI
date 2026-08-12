@@ -4,7 +4,7 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "start": "node gateway.js",
+        "start": "node server.js",
         "dev": "npm run dev:microservices",
         "start:legacy": "node server.js",
         "dev:legacy": "node server.js",
