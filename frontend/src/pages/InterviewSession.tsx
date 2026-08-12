@@ -9,68 +9,18 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiUrl } from '../lib/api';
 
-// ── Interview Phases ────────────────────────────────────────────────────────
+// ── Single Dynamic Phase ──
 const PHASES = [
   {
-    id: 'intro',
-    label: 'Introduction',
-    short: 'Intro',
-    color: 'text-blue-400',
-    bg: 'bg-blue-400/10',
-    border: 'border-blue-400/20',
-    systemHint: `You are a friendly, professional interviewer. This is the INTRODUCTION phase. Ask only ONE warm, welcoming intro question at a time. Start with "Tell me about yourself" or "Please give me a brief introduction." Keep your tone conversational, encouraging, and easy-going. This is NOT a technical round. Do not ask technical questions yet.`,
-    opening: `Welcome — I'm glad you're here today. Let's start simply: could you please tell me a bit about yourself, your background, and what brought you to this role?`,
-  },
-  {
-    id: 'skills',
-    label: 'Skills',
-    short: 'Skills',
-    color: 'text-yellow-400',
-    bg: 'bg-yellow-400/10',
-    border: 'border-yellow-400/20',
-    systemHint: `You are a friendly interviewer. This is the SKILLS phase. Ask ONE question at a time about the candidate's technical skills, tools, languages, and technologies they are comfortable with. Be conversational and encouraging. Gradually probe for depth but remain supportive. No harsh criticism.`,
-    opening: `Thanks for that introduction. Now let's talk about your technical skills — what programming languages or tools are you most comfortable working with?`,
-  },
-  {
-    id: 'projects',
-    label: 'Projects',
-    short: 'Projects',
+    id: 'live',
+    label: 'Comprehensive Interview',
+    short: 'Live',
     color: 'text-brand-cyan',
     bg: 'bg-brand-cyan/10',
     border: 'border-brand-cyan/20',
-    systemHint: `You are a friendly interviewer. This is the PROJECTS phase. Ask ONE question at a time about the candidate's personal or academic projects. Ask about what they built, the tech stack, challenges faced, and what they learned. Be curious but encouraging.`,
-    opening: `I'd love to hear about your projects. Can you walk me through one project you're particularly proud of — what did you build and what technologies did you use?`,
-  },
-  {
-    id: 'internship',
-    label: 'Internship',
-    short: 'Experience',
-    color: 'text-purple-400',
-    bg: 'bg-purple-400/10',
-    border: 'border-purple-400/20',
-    systemHint: `You are a friendly interviewer. This is the INTERNSHIP/EXPERIENCE phase. Ask ONE question at a time about the candidate's internship or work experience. If they have none, ask about college labs, freelance work, or open source contributions. Be supportive.`,
-    opening: `Let's talk about your work experience. Have you done any internships, part-time roles, or freelance work? If so, tell me about your most recent one.`,
-  },
-  {
-    id: 'certifications',
-    label: 'Certifications',
-    short: 'Certs',
-    color: 'text-orange-400',
-    bg: 'bg-orange-400/10',
-    border: 'border-orange-400/20',
-    systemHint: `You are a friendly interviewer. This is the CERTIFICATIONS & LEARNING phase. Ask ONE question about certifications, online courses, hackathons, or any self-learning the candidate has done. Be enthusiastic about their growth mindset.`,
-    opening: `Have you earned any certifications, completed notable online courses, or participated in hackathons recently?`,
-  },
-  {
-    id: 'hr',
-    label: 'HR Round',
-    short: 'HR',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-400/10',
-    border: 'border-emerald-400/20',
-    systemHint: `You are a warm, professional HR interviewer. This is the HUMAN RESOURCES phase. Ask ONE HR question at a time: why this company, career goals, strengths and weaknesses, salary expectations, where they see themselves in 5 years, teamwork style, handling pressure, etc. Be supportive and professional.`,
-    opening: `We're in the final stretch — just a few HR questions. Why are you interested in this role, and what are you hoping to achieve in your next position?`,
-  },
+    systemHint: '',
+    opening: `Welcome — I'm glad you're here today. Let's begin by having you introduce yourself, and then we'll dive into your background and resume.`,
+  }
 ];
 
 type CamState = 'requesting' | 'active' | 'denied' | 'idle';
@@ -90,9 +40,10 @@ const InterviewSession = () => {
   const currentPhase = PHASES[phaseIndex];
 
   // ── Session ─────────────────────────────────────────────────────────────
-  const MAX_ANSWERS = 8;
+  const MAX_ANSWERS = 12;
   const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 min
   const [resumeUploaded, setResumeUploaded] = useState(false);
+  const [resumeText, setResumeText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -277,7 +228,10 @@ const InterviewSession = () => {
         body: fd,
       });
       const data = await res.json();
-      if (data.success) setResumeUploaded(true);
+      if (data.success) {
+        setResumeUploaded(true);
+        if (data.resumeText) setResumeText(data.resumeText);
+      }
       else alert('Upload failed: ' + (data.error || 'Unknown error'));
     } catch { alert('Failed to parse resume.'); }
     finally { setIsUploading(false); }
@@ -328,6 +282,7 @@ const InterviewSession = () => {
             role: user?.targetRole || 'Software Engineer',
             type: phase.label,
             systemHint: phase.systemHint,
+            resumeText: resumeText,
           },
         }),
       });
@@ -744,13 +699,6 @@ const InterviewSession = () => {
                   <CheckCircle2 size={13} />
                   {isAiProcessing ? 'Processing...' : 'Submit Answer'}
                 </button>
-                {phaseIndex < PHASES.length - 1 && questionCount >= 2 && (
-                  <button onClick={handleNextPhase} disabled={isAiProcessing}
-                    className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-[12px] font-semibold transition-all disabled:opacity-30 ${PHASES[phaseIndex + 1].bg} ${PHASES[phaseIndex + 1].border} ${PHASES[phaseIndex + 1].color}`}>
-                    Next: {PHASES[phaseIndex + 1].label}
-                    <ChevronRight size={13} />
-                  </button>
-                )}
               </div>
             )}
           </div>

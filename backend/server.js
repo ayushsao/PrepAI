@@ -117,7 +117,7 @@ Respond ONLY in JSON format like this:
       success: true,
       skills: result.skills || [],
       question: result.question || "Could you walk me through your background and projects?",
-      resumeText: resumeText.substring(0, 500) // snippet for frontend preview
+      resumeText: resumeText.substring(0, 4000)
     });
   } catch (error) {
     console.error('Error processing resume:', error);
@@ -131,13 +131,16 @@ app.post('/api/interview', async (req, res) => {
     const { messages, context } = req.body;
 
     // Construct system prompt for the AI interviewer
-    const systemInstruction = `You are a strict, highly rigorous Principal Staff Engineer conducting a final-round ${context?.type || 'Technical'} interview for a ${context?.role || 'Software Engineer'} role at a top-tier tech company.
+    const systemInstruction = `You are a strict, highly rigorous Principal Staff Engineer conducting a full comprehensive interview for a ${context?.role || 'Software Engineer'} role at a top-tier tech company.
 Rules for you:
 1. Do not break character. Be polite but extremely analytical, highly demanding, and probing. No hand-holding.
-2. Ask deeply technical, complex questions. If the candidate gives a superficial answer, aggressively drill down into edge cases, scalability, big-O complexity, system design tradeoffs, or low-level implementation details.
-3. Call out flaws, logical errors, or incomplete answers objectively and directly.
-4. CRITICAL RULE: Keep responses EXTREMELY short and conversational (1 to 2 short sentences MAX). NEVER bundle multiple questions together. Ask exactly ONE specific follow-up question per turn to keep the flow feeling like a real human conversation.
-5. If the user struggles, do not trivially give the answer; ask a difficult, leading question that forces them to justify their engineering decisions.`;
+2. You must drive the entire interview yourself. Progress naturally from Introduction -> Skills -> Projects -> Academic/Experience -> HR/Behavioral over the course of 10-12 questions. 
+3. DO NOT wait for the user to change topics. YOU transition the topics smoothly when ready. Go from basic to advanced.
+4. Base your technical questions heavily on the candidate's resume below (if provided). If they give a superficial answer, aggressively drill down into edge cases, scalability, or low-level implementation details.
+5. CRITICAL RULE: Keep responses EXTREMELY short and conversational (1 to 2 short sentences MAX). NEVER bundle multiple questions together. Ask exactly ONE specific follow-up question per turn to keep the flow feeling like a real human conversation.
+
+Candidate Resume Context:
+${context?.resumeText || 'No specific resume provided.'}`;
     const groqMessages = [
       { role: 'system', content: systemInstruction },
       ...messages.map(m => ({
